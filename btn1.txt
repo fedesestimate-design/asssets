@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dimensional Rift Stabilizer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+ 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<style>
+
+/* Import Google Font */
+body {
+    background-color: #1a1c20;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Orbitron', sans-serif;
+    color: #e0e0e0;
+}
+
+.tool-container {
+    background-color: #2c303a;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    border: 1px solid #444;
+}
+
+.tool-title {
+    margin-bottom: 25px;
+    color: #ffffff;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.stabilizer-display {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 20px auto 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.stabilize-btn {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(145deg, #833ab4, #fd1d1d, #fcb045);
+    background-size: 200% 200%;
+    color: white;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 0 25px rgba(253, 29, 29, 0.5), 0 0 15px rgba(131, 58, 180, 0.4) inset;
+    transition: transform 0.2s ease;
+    animation: pulse 3s infinite ease-in-out, background-pan 5s infinite linear;
+}
+
+.stabilize-btn:hover {
+    transform: scale(1.05);
+}
+
+.stabilize-btn:active {
+    transform: scale(0.95);
+    animation: none; /* Pause animation on click */
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.option-btn {
+    background-color: #3a404d;
+    border: 2px solid #555;
+    color: #a0a0a0;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 700;
+}
+
+.option-btn:hover {
+    background-color: #4a5162;
+    color: #fff;
+}
+
+.option-btn.active {
+    background-color: #833ab4;
+    color: white;
+    border-color: #fcb045;
+    box-shadow: 0 0 15px rgba(252, 176, 69, 0.5);
+}
+
+.status-message {
+    margin-top: 20px;
+    color: #999;
+    font-size: 14px;
+    height: 20px; /* Reserve space to prevent layout shifts */
+}
+
+/* Animations */
+@keyframes pulse {
+    0% { box-shadow: 0 0 25px rgba(253, 29, 29, 0.4), 0 0 15px rgba(131, 58, 180, 0.3) inset; }
+    50% { box-shadow: 0 0 45px rgba(253, 29, 29, 0.8), 0 0 25px rgba(131, 58, 180, 0.6) inset; }
+    100% { box-shadow: 0 0 25px rgba(253, 29, 29, 0.4), 0 0 15px rgba(131, 58, 180, 0.3) inset; }
+}
+
+@keyframes background-pan {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+</style>
+<body>
+
+    <div class="tool-container">
+        <h2 class="tool-title">Dimensional Rift</h2>
+        
+        <div class="stabilizer-display">
+            <button id="stabilizeBtn" class="stabilize-btn">STABILIZE</button>
+        </div>
+
+        <div class="options-grid">
+            <button class="option-btn active" data-mode="Quantum">QUANTUM</button>
+            <button class="option-btn" data-mode="Temporal">TEMPORAL</button>
+            <button class="option-btn" data-mode="Aether">AETHER</button>
+            <button class="option-btn" data-mode="Void">VOID</button>
+        </div>
+        
+        <p id="statusMessage" class="status-message">Status: Awaiting stabilization protocol.</p>
+    </div>
+
+    <script>
+    
+    document.addEventListener('DOMContentLoaded', () => {
+    const stabilizeBtn = document.getElementById('stabilizeBtn');
+    const optionBtns = document.querySelectorAll('.option-btn');
+    const statusMessage = document.getElementById('statusMessage');
+
+    let currentMode = 'Quantum'; // Default mode
+
+    // Useless messages for each mode
+    const messages = {
+        Quantum: [
+            "Quantum foam harmonics aligned.",
+            "Heisenberg compensator at 102%.",
+            "Probability matrix recalibrated.",
+        ],
+        Temporal: [
+            "Chrono-synclastic infundibulum secured.",
+            "Timeline divergence contained.",
+            "Causal loop paradox averted.",
+        ],
+        Aether: [
+            "Subspace resonance field stabilized.",
+            "Aetheric vibrations dampened.",
+            "Mana conduits purged successfully.",
+        ],
+        Void: [
+            "Non-euclidean geometry reinforced.",
+            "Existential threat nullified.",
+            "The abyss stares back... and nods.",
+        ]
+    };
+
+    // Event listener for option buttons
+    optionBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Remove 'active' class from all buttons
+            optionBtns.forEach(b => b.classList.remove('active'));
+            // Add 'active' class to the clicked button
+            btn.classList.add('active');
+            currentMode = btn.dataset.mode;
+        });
+    });
+
+    // Event listener for the main stabilize button
+    stabilizeBtn.addEventListener('click', () => {
+        stabilizeBtn.textContent = '...';
+        stabilizeBtn.disabled = true;
+
+        statusMessage.textContent = `Stabilizing ${currentMode} field...`;
+
+        // Simulate a "process"
+        setTimeout(() => {
+            stabilizeBtn.textContent = 'STABILIZE';
+            stabilizeBtn.disabled = false;
+            
+            // Pick a random message for the current mode
+            const randomMsgArray = messages[currentMode];
+            const randomIndex = Math.floor(Math.random() * randomMsgArray.length);
+            statusMessage.textContent = `Status: ${randomMsgArray[randomIndex]}`;
+        }, 1500); // 1.5-second delay
+    });
+});
+    </script>
+</body>
+</html>

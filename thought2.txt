@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Would You Rather? Generator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for a modern, rounded aesthetic */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .text-gradient {
+            background-image: linear-gradient(to right, #14b8a6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-xl mx-auto">
+        <!-- Main Generator Card -->
+        <div class="bg-white rounded-3xl shadow-xl p-8 md:p-10 text-center border border-gray-100">
+            
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-8 text-gradient">
+                Would You Rather? 🤔
+            </h1>
+            <p class="text-gray-600 mb-6 text-md">A tool for instant dilemmas and fun discussions.</p>
+            
+            <!-- Question Display Area -->
+            <div id="question-container" class="min-h-[120px] flex items-center justify-center p-6 bg-cyan-50 rounded-xl border-2 border-cyan-300 shadow-inner my-8 transition-all duration-500">
+                <p id="question-text" class="text-xl md:text-2xl font-semibold text-gray-800 leading-relaxed italic">
+                    Would you rather be able to talk to animals or be able to speak every human language fluently?
+                </p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row justify-center gap-4 mt-8">
+                <button id="generate-btn" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-8 rounded-full transition-transform transform hover:scale-[1.02] active:scale-95 focus:outline-none focus:ring-4 focus:ring-teal-300 shadow-md shadow-teal-300/50">
+                    Generate Question
+                </button>
+                <button id="copy-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-8 rounded-full transition-transform transform hover:scale-[1.02] active:scale-95 focus:outline-none focus:ring-4 focus:ring-gray-300">
+                    Copy
+                </button>
+            </div>
+             <!-- Copy Confirmation Message -->
+            <div id="copy-confirmation" class="mt-4 text-sm font-medium text-green-600 opacity-0 transition-opacity duration-300">
+                Question copied! Go share the dilemma!
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const questions = [
+                "Would you rather be able to talk to animals or be able to speak every human language fluently?",
+                "Would you rather live without music or live without movies?",
+                "Would you rather have unlimited access to the world's best food or the world's best books?",
+                "Would you rather be an Olympic gold medalist or a Nobel Prize winner?",
+                "Would you rather have a remote control that could pause time or a button that could teleport you instantly?",
+                "Would you rather fight 100 duck-sized horses or one horse-sized duck?",
+                "Would you rather know the date of your death or the cause of your death?",
+                "Would you rather be famous and disliked, or unknown and loved?",
+                "Would you rather be permanently stuck as a child or permanently stuck as an elderly person?",
+                "Would you rather live in a world where you could fly, but only as fast as you can walk, or teleport, but only 10 feet at a time?",
+                "Would you rather have hands that constantly feel wet or feet that constantly smell?",
+                "Would you rather have an unlimited supply of batteries or an unlimited supply of petrol/gasoline?",
+                "Would you rather travel to the past or travel to the future?"
+            ];
+
+            const questionText = document.getElementById('question-text');
+            const generateBtn = document.getElementById('generate-btn');
+            const copyBtn = document.getElementById('copy-btn');
+            const copyConfirmation = document.getElementById('copy-confirmation');
+
+            // Function to get a random question
+            const generateQuestion = () => {
+                const randomIndex = Math.floor(Math.random() * questions.length);
+                questionText.textContent = questions[randomIndex];
+            };
+
+            // Function to copy the question to clipboard
+            const copyQuestion = () => {
+                // Use the textContent of the display element
+                const textToCopy = questionText.textContent;
+                
+                // Attempt to copy
+                navigator.clipboard.writeText(textToCopy)
+                    .then(() => {
+                        // Show confirmation message
+                        copyConfirmation.style.opacity = '1';
+                        // Hide it after 2 seconds
+                        setTimeout(() => {
+                            copyConfirmation.style.opacity = '0';
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy text: ', err);
+                        // Fallback message for older browsers or restricted environments (though unlikely with modern API)
+                        questionText.textContent = "Error copying text. Please select and copy manually.";
+                    });
+            };
+
+            // Event Listeners
+            generateBtn.addEventListener('click', generateQuestion);
+            copyBtn.addEventListener('click', copyQuestion);
+
+            // Generate a starting question
+            generateQuestion();
+        });
+    </script>
+</body>
+</html>

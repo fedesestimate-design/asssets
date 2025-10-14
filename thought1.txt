@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Fact Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="w-full max-w-2xl mx-auto p-4">
+        <div class="bg-white rounded-2xl shadow-lg p-8 md:p-12 text-center border border-gray-200">
+            
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">Random Fact Generator 🧠</h1>
+            
+            <div id="fact-container" class="min-h-[100px] flex items-center justify-center p-4 bg-purple-50 rounded-lg border-l-4 border-purple-500 my-8">
+                <p id="fact-text" class="text-lg md:text-xl italic text-gray-700">Honey never spoils. Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still perfectly edible.</p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center gap-4 mt-8">
+                <button id="generate-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-full transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-300">
+                    Generate Fact
+                </button>
+                <button id="copy-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-8 rounded-full transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-gray-300">
+                    Copy
+                </button>
+            </div>
+             <div id="copy-confirmation" class="mt-4 text-sm text-green-600 opacity-0 transition-opacity duration-300">
+                Fact copied to clipboard!
+            </div>
+        </div>
+    </div>
+
+    <script >
+    document.addEventListener('DOMContentLoaded', () => {
+    const facts = [
+        "A single cloud can weigh more than a million pounds.",
+        "A shrimp's heart is in its head.",
+        "It is physically impossible for pigs to look up into the sky.",
+        "The national animal of Scotland is the unicorn.",
+        "A group of flamingos is called a 'flamboyance'.",
+        "Bananas are berries, but strawberries aren't.",
+        "Octopuses have three hearts.",
+        "Wombat poop is cube-shaped.",
+        "There are more fake flamingos in the world than real ones.",
+        "An ostrich's eye is bigger than its brain.",
+        "The inventor of the Pringles can is now buried in one.",
+        "There are more stars in the universe than grains of sand on all the Earth's beaches.",
+        "Sea otters hold hands when they sleep so they don't float away.",
+        "Cleopatra lived closer in time to the first iPhone's release than to the construction of the Great Pyramid of Giza.",
+        "A day on Venus is longer than a year on Venus.",
+        "If you shuffle a deck of cards properly, it's more than likely that the exact order of the cards has never been seen before in the history of the universe."
+    ];
+
+    const factText = document.getElementById('fact-text');
+    const generateBtn = document.getElementById('generate-btn');
+    const copyBtn = document.getElementById('copy-btn');
+    const copyConfirmation = document.getElementById('copy-confirmation');
+
+    // Function to get a random fact
+    const generateFact = () => {
+        const randomIndex = Math.floor(Math.random() * facts.length);
+        factText.textContent = facts[randomIndex];
+    };
+
+    // Function to copy the fact to clipboard
+    const copyFact = () => {
+        navigator.clipboard.writeText(factText.textContent)
+            .then(() => {
+                // Show confirmation message
+                copyConfirmation.style.opacity = '1';
+                // Hide it after 2 seconds
+                setTimeout(() => {
+                    copyConfirmation.style.opacity = '0';
+                }, 2000);
+            })
+            .catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+    };
+
+    // Event Listeners
+    generateBtn.addEventListener('click', generateFact);
+    copyBtn.addEventListener('click', copyFact);
+
+    // Optional: Generate a fact on initial page load
+    // generateFact();
+});
+    </script>
+</body>
+</html>
