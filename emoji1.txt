@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji and Text Repeater</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Google Fonts for a clear, modern look -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+    
+    <!-- Minimal Custom Styling (Identical to the Random Generator for visual consistency) -->
+    <style>
+        body {
+            /* Mimics the purple/blue gradient */
+            background: linear-gradient(135deg, #8a2be2 0%, #4b0082 100%); 
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Poppins', sans-serif;
+        }
+        .app-title {
+            font-weight: 800; /* Extra bold */
+            color: #ffffff;
+        }
+        .output-text {
+            /* Smaller font size for long repeated strings */
+            font-size: 1.5rem; 
+            word-wrap: break-word; /* Ensure long strings wrap */
+            max-height: 300px; /* Limit height of output box */
+            overflow-y: auto;
+            white-space: pre-wrap; /* Preserve formatting and wrap */
+            text-align: left;
+        }
+        .btn-repeat {
+            /* Custom gradient for the primary button to match the visual style */
+            background-image: linear-gradient(to right, #ff4e00, #ec9f05); /* Different color gradient */
+            border: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .btn-repeat:hover {
+            box-shadow: 0 4px 15px rgba(236, 159, 5, 0.4);
+            transform: translateY(-1px);
+        }
+        .btn-copy {
+            background-color: #00bcd4; /* Cyan color */
+            border: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .btn-copy:hover {
+            background-color: #0097a7;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container text-center py-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6">
+                
+                <!-- Application Header -->
+                <h1 class="app-title mb-5 d-flex align-items-center justify-content-center text-white">
+                    <span class="me-3 fs-1">&#x1F501;</span> Emoji/Text Repeater
+                </h1>
+                
+                <!-- Input Fields -->
+                <div class="card p-4 mb-4 bg-white bg-opacity-90 rounded-3 shadow-lg">
+                    <div class="mb-3 text-start">
+                        <label for="inputEmoji" class="form-label fw-bold text-dark">Emoji or Text to Repeat</label>
+                        <input type="text" class="form-control form-control-lg" id="inputEmoji" placeholder="e.g., ✨ or Hello">
+                    </div>
+                    <div class="mb-3 text-start">
+                        <label for="inputCount" class="form-label fw-bold text-dark">Number of Times (Max 1000)</label>
+                        <input type="number" class="form-control form-control-lg" id="inputCount" value="10" min="1" max="1000">
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-grid gap-3 d-sm-flex justify-content-sm-center mb-4">
+                    <button id="repeatBtn" class="btn btn-lg btn-repeat text-white px-5 shadow-sm">
+                        Repeat Text/Emoji
+                    </button>
+                    <button id="copyBtn" class="btn btn-lg btn-copy text-white px-5 shadow-sm" disabled>
+                        Copy Result
+                    </button>
+                </div>
+                
+                <!-- Output Display Area -->
+                <div id="outputDisplay" class="my-3 p-4 bg-white bg-opacity-10 rounded-3 shadow-lg d-flex justify-content-center align-items-center text-white output-text text-break" style="min-height: 150px;">
+                    Enter an emoji or text and the number of repetitions above to see the result here.
+                </div>
+
+
+                <!-- Toast/Alert for Copy Confirmation -->
+                <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+                  <div id="copyToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                      <div class="toast-body">
+                        Repeated text copied to clipboard!
+                      </div>
+                      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                  </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <!-- JavaScript Logic -->
+    <script>
+        const repeatBtn = document.getElementById('repeatBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const inputEmoji = document.getElementById('inputEmoji');
+        const inputCount = document.getElementById('inputCount');
+        const outputDisplay = document.getElementById('outputDisplay');
+        const copyToastElement = document.getElementById('copyToast');
+        let currentOutput = '';
+
+        /**
+         * Event handler for the Repeat button.
+         */
+        function handleRepeat() {
+            const textToRepeat = inputEmoji.value.trim();
+            let count = parseInt(inputCount.value, 10);
+            
+            // Basic validation
+            if (!textToRepeat) {
+                outputDisplay.innerHTML = '<span class="text-warning">Please enter some text or an emoji to repeat.</span>';
+                currentOutput = '';
+                copyBtn.disabled = true;
+                return;
+            }
+
+            if (isNaN(count) || count < 1) {
+                count = 1;
+                inputCount.value = 1;
+            } else if (count > 1000) {
+                count = 1000;
+                inputCount.value = 1000;
+            }
+
+            // Generate the repeated string (using \n for line breaks for better visibility)
+            const repeatedString = textToRepeat.repeat(count);
+            currentOutput = repeatedString;
+
+            // Display the output. We show line breaks every 50 repetitions or when the text itself contains newlines
+            const displayString = textToRepeat.includes('\n') ? repeatedString : 
+                                  repeatedString.replace(new RegExp(`(.{1,${textToRepeat.length * 50}})`, 'g'), '$1\n');
+
+            outputDisplay.textContent = displayString.trim(); // Use textContent for safety and to preserve emoji/text content
+            copyBtn.disabled = false;
+        }
+
+        /**
+         * Event handler for the Copy button.
+         */
+        function handleCopy() {
+            if (currentOutput) {
+                // Use the clipboard API for modern browsers
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(currentOutput)
+                        .then(() => {
+                            // Show the Bootstrap toast upon success
+                            const toast = new bootstrap.Toast(copyToastElement);
+                            toast.show();
+                        })
+                        .catch(err => {
+                            console.error('Could not copy text: ', err);
+                            // Fallback if clipboard API fails
+                            fallbackCopyTextToClipboard(currentOutput);
+                        });
+                } else {
+                    // Fallback for older browsers
+                    fallbackCopyTextToClipboard(currentOutput);
+                }
+            }
+        }
+        
+        /**
+         * Fallback function for copying text using execCommand (deprecated but works in iframes).
+         * @param {string} text The text to copy.
+         */
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";  // Avoid scrolling to bottom
+            textArea.style.opacity = "0";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    // Show the Bootstrap toast upon success
+                    const toast = new bootstrap.Toast(copyToastElement);
+                    toast.show();
+                } else {
+                    console.error('Fallback: Copying text command was unsuccessful');
+                }
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+
+        // Attach event listeners when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            repeatBtn.addEventListener('click', handleRepeat);
+            copyBtn.addEventListener('click', handleCopy);
+            
+            // Allow triggering repeat with the Enter key in the input fields
+            inputEmoji.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleRepeat();
+                }
+            });
+            inputCount.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleRepeat();
+                }
+            });
+        });
+
+    </script>
+
+</body>
+</html>

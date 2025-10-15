@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text-to-Emoji Translator</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Google Fonts for a clear, modern look -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+    
+    <!-- Minimal Custom Styling (Consistent Branding) -->
+    <style>
+        body {
+            /* Mimics the purple/blue gradient from the image */
+            background: linear-gradient(135deg, #8a2be2 0%, #4b0082 100%); 
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Poppins', sans-serif;
+        }
+        .app-title {
+            font-weight: 800; /* Extra bold */
+            color: #ffffff;
+        }
+        .output-text {
+            /* Ensures large font for the translated message */
+            font-size: 1.5rem; 
+            word-wrap: break-word; 
+            max-height: 300px; 
+            overflow-y: auto;
+            white-space: pre-wrap;
+            text-align: left;
+        }
+        .btn-translate {
+            /* Custom gradient for the primary button (Green/Lime for distinction) */
+            background-image: linear-gradient(to right, #4CAF50, #8BC34A); 
+            border: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .btn-translate:hover {
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+            transform: translateY(-1px);
+        }
+        .btn-copy {
+            background-color: #00bcd4; /* Cyan color, consistent secondary button */
+            border: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .btn-copy:hover {
+            background-color: #0097a7;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container text-center py-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6">
+                
+                <!-- Application Header -->
+                <h1 class="app-title mb-5 d-flex align-items-center justify-content-center text-white">
+                    <span class="me-3 fs-1">&#x1F4AD;</span> Text-to-Emoji Translator
+                </h1>
+                
+                <!-- Input Area -->
+                <div class="card p-4 mb-4 bg-white bg-opacity-90 rounded-3 shadow-lg">
+                    <div class="mb-3 text-start">
+                        <label for="inputText" class="form-label fw-bold text-dark">Enter Text to Convert</label>
+                        <textarea class="form-control form-control-lg" id="inputText" rows="4" placeholder="Type your message here, like 'I am happy and feel like eating pizza tonight!'"></textarea>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-grid gap-3 d-sm-flex justify-content-sm-center mb-4">
+                    <button id="translateBtn" class="btn btn-lg btn-translate text-white px-5 shadow-sm">
+                        Translate to Emoji
+                    </button>
+                    <button id="copyBtn" class="btn btn-lg btn-copy text-white px-5 shadow-sm" disabled>
+                        Copy Result
+                    </button>
+                </div>
+                
+                <!-- Output Display Area -->
+                <div id="outputDisplay" class="my-3 p-4 bg-white bg-opacity-10 rounded-3 shadow-lg d-flex justify-content-center align-items-center text-white output-text text-break" style="min-height: 150px; text-align: center;">
+                    Your emoji-fied message will appear here.
+                </div>
+
+
+                <!-- Toast/Alert for Copy Confirmation -->
+                <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+                  <div id="copyToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                      <div class="toast-body">
+                        Emoji message copied to clipboard!
+                      </div>
+                      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                  </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <!-- JavaScript Logic -->
+    <script>
+        const translateBtn = document.getElementById('translateBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const inputText = document.getElementById('inputText');
+        const outputDisplay = document.getElementById('outputDisplay');
+        const copyToastElement = document.getElementById('copyToast');
+        let currentOutput = '';
+
+        // Dictionary of common words/phrases and their emoji replacements
+        const wordMap = {
+            "love": "❤️",
+            "happy": "😊",
+            "sad": "😔",
+            "great": "👍",
+            "good": "👍",
+            "bad": "👎",
+            "fire": "🔥",
+            "cool": "😎",
+            "star": "⭐",
+            "money": "💰",
+            "pizza": "🍕",
+            "food": "🍔",
+            "drink": "🥤",
+            "home": "🏠",
+            "house": "🏠",
+            "car": "🚗",
+            "travel": "✈️",
+            "phone": "📱",
+            "laptop": "💻",
+            "party": "🎉",
+            "time": "⏰",
+            "today": "📅",
+            "sun": "☀️",
+            "rain": "☔",
+            "dog": "🐶",
+            "cat": "🐱",
+            "book": "📚",
+            "write": "✍️",
+            "read": "📖",
+            "question": "❓",
+            "exclamation": "❗",
+            "idea": "💡",
+            "smile": "😄",
+            "cry": "😭",
+            "sleep": "😴",
+            "music": "🎶",
+            "taco": "🌮",
+            "coffee": "☕",
+            "thanks": "🙏",
+            "please": "🙏"
+        };
+        
+        // Keys sorted by length descending to prioritize longer phrases/words first
+        const sortedKeys = Object.keys(wordMap).sort((a, b) => b.length - a.length);
+
+
+        /**
+         * Event handler for the Translate button.
+         */
+        function handleTranslate() {
+            let textToTranslate = inputText.value.trim().toLowerCase();
+            
+            if (!textToTranslate) {
+                outputDisplay.textContent = 'Please enter a message to translate.';
+                currentOutput = '';
+                copyBtn.disabled = true;
+                return;
+            }
+
+            // Simple replacement logic: Iterate through sorted keywords and replace them
+            let translatedText = textToTranslate;
+            
+            for (const word of sortedKeys) {
+                // Use a RegExp to find the whole word (or a phrase) globally, case-insensitive
+                // The 'g' flag for global replacement, and '\\b' for word boundaries helps prevent partial word replacement
+                // e.g., prevents changing 'gloves' to 'g❤️ves'
+                const regex = new RegExp(`\\b${word}\\b`, 'g');
+                
+                // Replace the word with its emoji counterpart
+                translatedText = translatedText.replace(regex, wordMap[word]);
+            }
+            
+            // Capitalize the first letter of the result for a clean look
+            translatedText = translatedText.charAt(0).toUpperCase() + translatedText.slice(1);
+            
+            currentOutput = translatedText;
+            outputDisplay.textContent = translatedText;
+            copyBtn.disabled = false;
+        }
+
+        /**
+         * Event handler for the Copy button.
+         */
+        function handleCopy() {
+            if (currentOutput) {
+                // Use the clipboard API for modern browsers
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(currentOutput)
+                        .then(() => {
+                            // Show the Bootstrap toast upon success
+                            const toast = new bootstrap.Toast(copyToastElement);
+                            toast.show();
+                        })
+                        .catch(err => {
+                            console.error('Could not copy text: ', err);
+                            // Fallback if clipboard API fails
+                            fallbackCopyTextToClipboard(currentOutput);
+                        });
+                } else {
+                    // Fallback for older browsers
+                    fallbackCopyTextToClipboard(currentOutput);
+                }
+            }
+        }
+        
+        /**
+         * Fallback function for copying text using execCommand (deprecated but works in iframes).
+         * @param {string} text The text to copy.
+         */
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";  // Avoid scrolling to bottom
+            textArea.style.opacity = "0";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    // Show the Bootstrap toast upon success
+                    const toast = new bootstrap.Toast(copyToastElement);
+                    toast.show();
+                } else {
+                    console.error('Fallback: Copying text command was unsuccessful');
+                }
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+
+        // Attach event listeners when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            translateBtn.addEventListener('click', handleTranslate);
+            copyBtn.addEventListener('click', handleCopy);
+            
+            // Allow triggering repeat with the Enter key in the input field
+            inputText.addEventListener('keypress', (e) => {
+                // Check for Ctrl/Cmd + Enter for textarea submit
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault();
+                    handleTranslate();
+                }
+            });
+        });
+
+    </script>
+
+</body>
+</html>
