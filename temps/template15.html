@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navjeevan Hospital Prescription Generator</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Handwritten Google Font (Caveat) -->
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Load html2canvas for screenshot functionality -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
+    <style>
+        /* Custom styles for the Certificate Preview */
+        .certificate-preview {
+            background-color: #ffffff; 
+            border: 1px solid #ddd;
+            width: 100%;
+            height: 100%;
+            max-width: 400px; 
+            max-height: 550px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem 2rem; 
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background-image: url('https://placehold.co/400x550/f9f9f9/545454/png?text=PAPER+TEXTURE'); /* Subtle paper texture visual */
+            background-size: cover;
+        }
+
+        /* Handwritten Font Class */
+        .handwritten {
+            font-family: 'Caveat', cursive;
+            font-size: 1.2rem;
+            line-height: 1.5;
+            transition: color 0.1s ease-in-out;
+            word-wrap: break-word; 
+        }
+        
+        /* Hospital Header Font - Bold, Professional, Sans-serif for clarity */
+        .hospital-header-font {
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.02rem;
+            color: #1f2937; /* Dark Gray */
+        }
+        
+        /* Rx Symbol */
+        .rx-symbol {
+            font-family: 'Times New Roman', serif;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #b03a46; /* Maroon/Reddish tone */
+            line-height: 1;
+            margin-right: 10px;
+        }
+
+        /* Vertical Exam Findings Table */
+        .exam-finding-container {
+            position: absolute;
+            top: 105px; /* Aligned below patient name/date */
+            right: 1.5rem; /* Padding adjustment */
+            width: 100px; /* Fixed width for findings column */
+            font-size: 0.75rem; /* xs */
+            line-height: 1.1;
+        }
+        .exam-finding-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2px;
+            border-bottom: 1px dashed #e5e7eb;
+        }
+        .exam-finding-label {
+            font-weight: 500;
+            color: #4b5563;
+        }
+        .exam-finding-value {
+            font-weight: 700;
+            color: #1f2937;
+            text-align: right;
+        }
+        
+        /* Responsive layout for the main container */
+        @media (min-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #3b82f640; /* Blue focus */
+        }
+
+        /* Handwritten Color Classes */
+        .color-light-blue { color: #6495ED; }
+        .color-ball-pen { color: #000080; }
+        .color-gel-pen { color: #0000CD; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans min-h-screen p-4 sm:p-8">
+
+    <div class="max-w-7xl mx-auto main-container lg:grid lg:gap-12">
+        
+        <!-- Input Form (Left Column) -->
+        <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg mb-8 lg:mb-0">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b pb-3">Prescription Details Input</h2>
+            <form id="generator-form" class="space-y-4">
+                
+                <!-- Date -->
+                <div>
+                    <label for="cert-date" class="block text-sm font-medium text-gray-700">Prescription Date</label>
+                    <input type="date" id="cert-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                
+                <!-- Name, Age, Gender -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700">Patient Name</label>
+                    <input type="text" id="name" value="Raj Chourasiya" placeholder="Enter Patient Name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                <div class="flex space-x-4">
+                    <div class="flex-1">
+                        <label for="age" class="block text-sm font-medium text-gray-700">Age</label>
+                        <input type="number" id="age" value="25" placeholder="Age" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                    </div>
+                    <div class="flex-1">
+                        <label for="days" class="block text-sm font-medium text-gray-700">Days of Rest</label>
+                        <input type="number" id="days" value="4" placeholder="Number of days" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                    </div>
+                </div>
+
+                <!-- Complaint/History -->
+                <div>
+                    <label for="history" class="block text-sm font-medium text-gray-700">Clinical History (H/o)</label>
+                    <textarea id="history" rows="3" placeholder="e.g., H/o fever for 2 days, H/o nausea and vomiting" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">H/o fever for 3 days. Tweak: Burn marks on leg below calf region. Swollen.</textarea>
+                </div>
+
+                 <!-- Provisional Diagnosis -->
+                <div>
+                    <label for="diagnosis" class="block text-sm font-medium text-gray-700">Provisional Diagnosis (Pro. Diag)</label>
+                    <input type="text" id="diagnosis" value="Cellulitis / Burn" placeholder="e.g., Viral Fever, Cellulitis" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                
+                <hr class="border-gray-300">
+                <p class="text-sm font-bold text-gray-700">Medication List (5 entries)</p>
+
+                <!-- Dynamic Medication Inputs (5 pairs) -->
+                <div id="medication-inputs" class="space-y-2">
+                    <div class="flex space-x-2">
+                        <input type="text" id="med-name-1" value="Cap. Doxycycline" placeholder="Med 1 Name" class="flex-1 rounded-md border-gray-300 shadow-sm p-2 border text-sm">
+                        <input type="text" id="med-dosage-1" value="1-0-1 X 7 days" placeholder="Dosage/Instruction" class="w-1/3 rounded-md border-gray-300 shadow-sm p-2 border text-sm">
+                    </div>
+                     <div class="flex space-x-2">
+                        <input type="text" id="med-name-2" value="Tab. Montelukas A/B" placeholder="Med 2 Name" class="flex-1 rounded-md border-gray-300 shadow-sm p-2 border text-sm">
+                        <input type="text" id="med-dosage-2" value="0-0-1 X 10 days" placeholder="Dosage/Instruction" class="w-1/3 rounded-md border-gray-300 shadow-sm p-2 border text-sm">
+                    </div>
+                    <div class="flex space-x-2">
+                        <input type="text" id="med-name-3" value="Tab. Levocetirizine 5mg" placeholder="Med 3 Name" class="flex-1 rounded-md border-gray-300 shadow-sm p-2 border text-sm">
+                        <input type="text" id="med-dosage-3" value="1-0-1 X 5 days" placeholder="Dosage/Instruction" class="w-1/3 rounded-md border-gray-300 shadow-sm p-2 border text-sm">
+                    </div>
+                    <div class="flex space-x-2">
+                        <input type="text" id="med-name-4" value="Tab. Etizola 0.5mg" placeholder="Med 4 Name" class="flex-1 rounded-md border-gray-300 shadow-sm p-2 border text-sm">
+                        <input type="text" id="med-dosage-4" value="0-0-1 SOS" placeholder="Dosage/Instruction" class="w-1/3 rounded-md border-gray-300 shadow-sm p-2 border text-sm">
+                    </div>
+                    <div class="flex space-space-x-2">
+                        <input type="text" id="med-name-5" value="" placeholder="Med 5 Name (Optional)" class="flex-1 rounded-md border-gray-300 shadow-sm p-2 border text-sm">
+                        <input type="text" id="med-dosage-5" value="" placeholder="Dosage/Instruction" class="w-1/3 rounded-md border-gray-300 shadow-sm p-2 border text-sm">
+                    </div>
+                </div>
+
+                <hr class="border-gray-300">
+                <p class="text-sm font-bold text-gray-700">Clinical Examination Findings</p>
+
+                <!-- Exam Finding Inputs -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="block text-xs font-medium text-gray-700">Pulse (P)</label><input type="text" id="pulse" value="96" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border text-sm"></div>
+                    <div><label class="block text-xs font-medium text-gray-700">Blood Pressure (BP)</label><input type="text" id="bp" value="130/80" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border text-sm"></div>
+                    <div><label class="block text-xs font-medium text-gray-700">Respiration (Resp.)</label><input type="text" id="resp" value="18" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border text-sm"></div>
+                    <div><label class="block text-xs font-medium text-gray-700">Temperature (Temp)</label><input type="text" id="temp" value="100.2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border text-sm"></div>
+                    <div><label class="block text-xs font-medium text-gray-700">SpO2</label><input type="text" id="spo2" value="98" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border text-sm"></div>
+                </div>
+
+                <!-- Hospital Details -->
+                <hr class="border-gray-200">
+                <p class="text-sm font-bold text-gray-700">Hospital Contact/Address</p>
+                <div>
+                    <label for="address" class="block text-sm font-medium text-gray-700">Address/Location</label>
+                    <input type="text" id="address" value="Near Bus Stand, Vasant Vihar, DELHI" placeholder="Address/Sector" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700">Change Phone Number</label>
+                    <input type="text" id="phone" value="07624292263" placeholder="07624292263" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                
+                <!-- Handwritten Color Selector -->
+                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <label class="block text-sm font-bold text-gray-800 mb-2">Select Handwritten Text Color</label>
+                    <div class="space-y-1" id="color-selector">
+                        <div class="flex items-center">
+                            <input id="color-ball-pen" name="pen-color" type="radio" value="ball-pen" checked class="h-4 w-4 text-blue-800 border-gray-300 focus:ring-blue-500">
+                            <label for="color-ball-pen" class="ml-2 text-sm text-gray-700">Ball Pen Blue (Default)</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="color-light-blue" name="pen-color" type="radio" value="light-blue" class="h-4 w-4 text-blue-500 border-gray-300 focus:ring-blue-500">
+                            <label for="color-light-blue" class="ml-2 text-sm text-gray-700">Light Blue Ink</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="color-gel-pen" name="pen-color" type="radio" value="gel-pen" class="h-4 w-4 text-blue-700 border-gray-300 border-gray-300 focus:ring-blue-500">
+                            <label for="color-gel-pen" class="ml-2 text-sm text-gray-700">Gel Pen Blue</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Checkbox and Download Button -->
+                <div class="pt-4">
+                    <div class="flex items-center mb-4">
+                        <input id="terms" type="checkbox" class="h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                        <label for="terms" class="ml-2 block text-sm text-gray-900">
+                            I agree to the Terms and Conditions.
+                        </label>
+                    </div>
+                    <button type="button" id="download-btn" disabled class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-400 hover:bg-gray-500 transition duration-150">
+                        Download Screenshot (Disabled)
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Certificate Preview (Right Column) -->
+        <div class="flex flex-col items-center lg:items-start">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Medical Certificate Preview</h2>
+            <div id="certificate" class="certificate-preview flex-shrink-0">
+                
+                <!-- --- Top Header (Navjeevan Hospital) --- -->
+                <div class="relative text-center mb-2">
+                    <div class="flex items-center justify-center space-x-2">
+                         <div class="text-3xl text-red-600 font-extrabold flex items-center h-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                                <path fill="none" d="M0 0h24v24H0z"/>
+                                <path fill="#ef4444" d="M13 11h-2v6h2zm0-8h-2V7h2z" transform="rotate(45 12 12)"/>
+                                <path fill="#ef4444" d="M13 11h-2v6h2zm0-8h-2V7h2z" transform="rotate(-45 12 12)"/>
+                            </svg>
+                        </div>
+                        <h2 class="hospital-header-font text-xl sm:text-2xl font-extrabold text-gray-800 leading-none">
+                            नवजीवन चिकित्सालय
+                        </h2>
+                        <div class="text-3xl text-red-600 font-extrabold flex items-center h-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                                <path fill="none" d="M0 0h24v24H0z"/>
+                                <path fill="#ef4444" d="M13 11h-2v6h2zm0-8h-2V7h2z" transform="rotate(45 12 12)"/>
+                                <path fill="#ef4444" d="M13 11h-2v6h2zm0-8h-2V7h2z" transform="rotate(-45 12 12)"/>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <p class="text-xs text-gray-700 font-medium mt-1">
+                        डॉ. विकास शर्मा (MBBS, MD)
+                    </p>
+                    <p id="cert-address" class="text-xs text-gray-500 font-medium leading-tight">
+                        Near Bus Stand, Vasant Vihar, DELHI
+                    </p>
+                </div>
+                
+                <!-- --- Patient Details & Date --- -->
+                <div class="flex justify-between text-sm mb-2 border-b border-gray-400 pb-1">
+                    <p class="text-xs font-bold text-gray-800">नाम: <span id="cert-name" class="handwritten text-lg font-bold inline-block ml-1">Raj Chourasiya</span></p>
+                    <p id="cert-date-display" class="handwritten text-lg font-bold">17 / 10 / 25</p>
+                </div>
+                
+                <!-- --- Clinical Exam Findings (Vertical Column) --- -->
+                <div class="exam-finding-container">
+                    <div class="exam-finding-row border-b-2 border-gray-700">
+                        <span class="exam-finding-label font-bold">Ex. Finding</span>
+                        <span class="exam-finding-value font-bold">Value</span>
+                    </div>
+                    <div class="exam-finding-row"><span class="exam-finding-label">P.</span><span id="cert-pulse" class="exam-finding-value">96</span></div>
+                    <div class="exam-finding-row"><span class="exam-finding-label">B.P.</span><span id="cert-bp" class="exam-finding-value">130/80</span></div>
+                    <div class="exam-finding-row"><span class="exam-finding-label">Resp.</span><span id="cert-resp" class="exam-finding-value">18</span></div>
+                    <div class="exam-finding-row"><span class="exam-finding-label">Tem.</span><span id="cert-temp" class="exam-finding-value">100.2</span></div>
+                    <div class="exam-finding-row"><span class="exam-finding-label">SpO2</span><span id="cert-spo2" class="exam-finding-value">98</span></div>
+                    <div class="exam-finding-row border-none"><span class="exam-finding-label">Age</span><span id="cert-age" class="exam-finding-value">25</span></div>
+                </div>
+
+                <!-- Rx Symbol & Main Content Area -->
+                <div class="flex items-start flex-grow pt-2 pr-28"> <!-- Padded to avoid overlapping with Ex. Findings -->
+                    
+                    <div class="flex-1 space-y-2">
+                         <!-- Clinical History -->
+                        <div class="border-b border-dashed border-gray-300 pb-1 mb-1">
+                            <p class="text-xs font-bold text-gray-600 uppercase">Clinical History:</p>
+                            <p id="cert-history-display" class="handwritten text-base leading-snug pl-1"></p>
+                        </div>
+                        
+                        <!-- Drug Allergy -->
+                        <div class="border-b border-dashed border-gray-300 pb-1 mb-1">
+                            <p class="text-xs font-bold text-gray-600 uppercase">Drug Allergy:</p>
+                            <p id="cert-allergy-display" class="handwritten text-base leading-snug pl-1">-</p>
+                        </div>
+
+                        <!-- Provisional Diagnosis -->
+                        <div class="border-b border-dashed border-gray-300 pb-1 mb-1">
+                            <p class="text-xs font-bold text-gray-600 uppercase">Pro Diag:</p>
+                            <p id="cert-diagnosis-display" class="handwritten text-base leading-snug pl-1"></p>
+                        </div>
+
+                        <!-- Rx Block -->
+                        <div class="flex items-start">
+                            <span class="rx-symbol">Rx</span>
+                            <div class="flex-1">
+                                <p class="text-xs font-bold text-gray-600 uppercase">M.M.</p>
+                                <div id="medication-list" class="space-y-1">
+                                    <!-- Dynamic Medication Rows -->
+                                </div>
+                            </div>
+                        </div>
+                       
+                    </div>
+                    
+                </div>
+
+                <!-- --- Footer --- -->
+                <div class="mt-auto pt-4 text-center text-xs text-gray-700 border-t border-gray-400">
+                    
+                    <!-- Review / Days Off -->
+                    <div class="flex justify-between items-center text-xs font-medium text-gray-600 border-b border-dashed border-gray-300 pb-2 mb-2">
+                        <p>Review After: <span id="cert-days" class="handwritten text-base font-bold text-blue-800">4</span> days</p>
+                        <p class="font-bold">M.D.O.</p>
+                    </div>
+
+                    <!-- Hospital Info in Footer -->
+                    <p class="text-xs font-bold text-gray-800">डॉ. विकास शर्मा (MBBS, MD)</p>
+                    <div class="flex justify-between mt-0.5 text-xs text-gray-600">
+                        <p>Tel: <span id="cert-phone">07624292263</span></p>
+                        <p>Reg No: 12345</p>
+                    </div>
+                    <p class="text-left text-xs text-gray-500 font-medium mt-1">
+                         *This prescription is provided for information only and should not be used as a legal medical certificate.
+                    </p>
+                </div>
+                
+            </div>
+            <div class="text-xs mt-2 text-gray-500 w-full max-w-sm">
+                *The certificate size is optimized for display. The downloaded image will be of higher quality (800x1100).
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('generator-form');
+            const downloadBtn = document.getElementById('download-btn');
+            const termsCheckbox = document.getElementById('terms');
+            const certificateContainer = document.getElementById('certificate');
+            const dateInput = document.getElementById('cert-date');
+            const colorSelector = document.getElementById('color-selector');
+
+            // --- Initial Setup ---
+
+            // Function to format Date as DD / MM / YY
+            const formatDate = (dateValue) => {
+                if (!dateValue) return "DD / MM / YY";
+                const d = new Date(dateValue);
+                const y = String(d.getFullYear()).slice(-2);
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                return `${dd} / ${m} / ${y}`;
+            };
+
+            // Set initial date to today
+            const today = new Date();
+            dateInput.value = today.toISOString().substring(0, 10);
+            document.getElementById('cert-date-display').textContent = formatDate(dateInput.value);
+
+            const HANDWRITING_CLASS = "handwritten text-base leading-snug";
+            
+            // Function to create a medication row using the flexible inputs
+            let medCounter = 0;
+            const createMedicationRow = (medName, dosage) => {
+                if (!medName) return "";
+                medCounter++;
+                return `
+                    <div class="flex items-baseline space-x-2">
+                        <span class="text-xs font-bold text-gray-800">${medCounter}.</span>
+                        <div class="flex-1 ${HANDWRITING_CLASS}">
+                            ${medName} 
+                            <span class="ml-4 font-bold text-blue-800">${dosage}</span>
+                        </div>
+                    </div>
+                `;
+            };
+
+            // --- Real-time Update Logic ---
+            const updateCertificate = () => {
+                // Collect all elements with the 'handwritten' class for dynamic updates
+                const allHandwrittenElements = document.querySelectorAll('.handwritten');
+
+                const name = document.getElementById('name').value || "Patient Name";
+                const age = document.getElementById('age').value || "XX";
+                const days = document.getElementById('days').value || "0";
+                const phone = document.getElementById('phone').value || "XXXXXXXXXXX";
+                const address = document.getElementById('address').value || "ADDRESS, LOCATION, CITY";
+                const history = document.getElementById('history').value || "No History Recorded";
+                const diagnosis = document.getElementById('diagnosis').value || "No Provisional Diagnosis";
+                
+                // Exam Findings
+                const pulse = document.getElementById('pulse').value || "---";
+                const bp = document.getElementById('bp').value || "---/---";
+                const resp = document.getElementById('resp').value || "---";
+                const temp = document.getElementById('temp').value || "---";
+                const spo2 = document.getElementById('spo2').value || "---";
+                
+                // Update certificate elements
+                document.getElementById('cert-name').textContent = name;
+                document.getElementById('cert-age').textContent = age;
+                document.getElementById('cert-days').textContent = days;
+                document.getElementById('cert-phone').textContent = phone;
+                document.getElementById('cert-address').textContent = address;
+                document.getElementById('cert-date-display').textContent = formatDate(dateInput.value);
+                document.getElementById('cert-history-display').textContent = history;
+                document.getElementById('cert-diagnosis-display').textContent = diagnosis;
+
+                // Update Exam Findings
+                document.getElementById('cert-pulse').textContent = pulse;
+                document.getElementById('cert-bp').textContent = bp;
+                document.getElementById('cert-resp').textContent = resp;
+                document.getElementById('cert-temp').textContent = temp;
+                document.getElementById('cert-spo2').textContent = spo2;
+
+                // Update Medication List
+                medCounter = 0; // Reset counter
+                const medicationList = document.getElementById('medication-list');
+                let medHTML = '';
+                for (let i = 1; i <= 5; i++) {
+                    const medName = document.getElementById(`med-name-${i}`).value;
+                    const medDosage = document.getElementById(`med-dosage-${i}`).value;
+                    medHTML += createMedicationRow(medName, medDosage);
+                }
+                medicationList.innerHTML = medHTML;
+                
+                // Re-apply handwriting style classes to newly created elements
+                document.querySelectorAll('.handwritten').forEach(el => {
+                    const selectedColor = document.querySelector('input[name="pen-color"]:checked').value;
+                    el.classList.remove('color-light-blue', 'color-ball-pen', 'color-gel-pen');
+                    const colorClass = selectedColor === 'light-blue' ? 'color-light-blue' :
+                                       selectedColor === 'gel-pen' ? 'color-gel-pen' :
+                                       'color-ball-pen'; 
+                    el.classList.add(colorClass);
+                });
+            };
+
+            // Attach event listeners to all form controls for real-time updates
+            const inputElements = form.querySelectorAll('input, select, textarea');
+            inputElements.forEach(input => {
+                input.addEventListener('input', updateCertificate);
+            });
+
+            // --- Color Switcher Logic ---
+            colorSelector.addEventListener('change', (event) => {
+                const selectedColor = event.target.value;
+                const allHandwrittenElements = document.querySelectorAll('.handwritten');
+                
+                allHandwrittenElements.forEach(el => {
+                    el.classList.remove('color-light-blue', 'color-ball-pen', 'color-gel-pen');
+                });
+                
+                const colorClass = selectedColor === 'light-blue' ? 'color-light-blue' :
+                                   selectedColor === 'gel-pen' ? 'color-gel-pen' :
+                                   'color-ball-pen'; 
+                
+                allHandwrittenElements.forEach(el => el.classList.add(colorClass));
+            });
+
+            // Initial color set (default to ball-pen) and update
+            document.querySelectorAll('.handwritten').forEach(el => el.classList.add('color-ball-pen'));
+            updateCertificate();
+
+
+            // --- Checkbox and Button State Logic ---
+            termsCheckbox.addEventListener('change', () => {
+                downloadBtn.disabled = !termsCheckbox.checked;
+                downloadBtn.classList.toggle('bg-green-600', termsCheckbox.checked);
+                downloadBtn.classList.toggle('hover:bg-green-700', termsCheckbox.checked);
+                downloadBtn.classList.toggle('bg-gray-400', !termsCheckbox.checked);
+                downloadBtn.classList.toggle('hover:bg-gray-500', !termsCheckbox.checked);
+                downloadBtn.textContent = termsCheckbox.checked ? 'Download Screenshot' : 'Download Screenshot (Disabled)';
+            });
+
+
+            // --- Download Screenshot Logic (html2canvas) ---
+            downloadBtn.addEventListener('click', async () => {
+                if (!termsCheckbox.checked) {
+                    // Use custom message box instead of alert()
+                    console.error("Please agree to the terms and conditions.");
+                    const messageBox = document.createElement('div');
+                    messageBox.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50';
+                    messageBox.innerHTML = `
+                        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+                            <h3 class="text-xl font-bold text-red-600 mb-3">Action Required</h3>
+                            <p class="text-gray-700 mb-4">You must agree to the Terms and Conditions before downloading the certificate.</p>
+                            <button onclick="this.parentNode.parentNode.remove()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">OK</button>
+                        </div>
+                    `;
+                    document.body.appendChild(messageBox);
+                    return;
+                }
+                
+                downloadBtn.textContent = 'Generating... Please wait.';
+                downloadBtn.disabled = true;
+
+                try {
+                    // Use html2canvas to capture the certificate div
+                    const canvas = await html2canvas(certificateContainer, {
+                        scale: 3, // Increase scale for higher resolution/quality
+                        useCORS: true, 
+                    });
+
+                    // Convert canvas to a data URL
+                    const image = canvas.toDataURL('image/png');
+
+                    // Create a temporary link element for download
+                    const link = document.createElement('a');
+                    link.href = image;
+                    link.download = 'navjeevan_prescription_' + document.getElementById('name').value.replace(/\s/g, '_') + '.png';
+                    
+                    // Simulate a click on the link to trigger download
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                } catch (error) {
+                    console.error("Error generating certificate screenshot:", error);
+                    // Inform the user of the failure
+                    const messageBox = document.createElement('div');
+                    messageBox.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50';
+                    messageBox.innerHTML = `
+                        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+                            <h3 class="text-xl font-bold text-red-600 mb-3">Download Failed</h3>
+                            <p class="text-gray-700 mb-4">There was an error generating the image. Check the console for details.</p>
+                            <button onclick="this.parentNode.parentNode.remove()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">OK</button>
+                        </div>
+                    `;
+                    document.body.appendChild(messageBox);
+                } finally {
+                    downloadBtn.textContent = 'Download Screenshot';
+                    downloadBtn.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

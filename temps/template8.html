@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Certificate Generator</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Handwritten Google Font (Caveat) -->
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Load html2canvas for screenshot functionality -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
+    <style>
+        /* Custom styles for the Certificate Preview */
+        .certificate-preview {
+            /* Using a generic prescription pad background image */
+            background-image: url('https://placehold.co/800x1700/f8f8f8/');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            
+            /* Enforce specific dimensions for a standard A4/Letter look */
+            width: 100%;
+            height: 100%;
+            max-width: 400px; 
+            max-height: 550px;
+            
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 2.5rem 1.5rem 1.5rem 1.5rem; /* Adjusted padding for new header/footer */
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #ddd;
+        }
+
+        /* Handwritten Font Class */
+        .handwritten {
+            font-family: 'Caveat', cursive;
+            font-size: 1.15rem; /* Slightly larger for visibility */
+            line-height: 1.5;
+            color: #000080; /* Dark blue ink */
+        }
+
+        /* Responsive layout for the main container */
+        @media (min-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        /* Remove ugly focus ring */
+        input:focus, textarea:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #3b82f640; /* Light blue focus ring */
+        }
+
+        .rx-symbol {
+            font-family: 'Times New Roman', serif;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #d85050; /* Reddish tone for the symbol */
+            line-height: 1;
+            margin-right: 10px;
+        }
+        
+        /* Style for the cross icon */
+        .cross-icon {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            position: relative;
+        }
+        .cross-icon::before, .cross-icon::after {
+            content: '';
+            position: absolute;
+            background-color: #d85050;
+        }
+        .cross-icon::before {
+            width: 100%;
+            height: 3px;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+        .cross-icon::after {
+            height: 100%;
+            width: 3px;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans min-h-screen p-4 sm:p-8">
+
+    <div class="max-w-7xl mx-auto main-container lg:grid lg:gap-12">
+        
+        <!-- Input Form (Left Column) -->
+        <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg mb-8 lg:mb-0">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b pb-3">Certificate Details Input</h2>
+            <form id="generator-form" class="space-y-4">
+                
+                <!-- Name -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700">Patient Name</label>
+                    <input type="text" id="name" value="Raj Chourasiya" placeholder="Enter Patient Name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                
+                <!-- Age & Gender -->
+                <div class="flex space-x-4">
+                    <div class="flex-1">
+                        <label for="age" class="block text-sm font-medium text-gray-700">Age</label>
+                        <input type="number" id="age" value="25" placeholder="Age" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                    </div>
+                    <div class="flex-1">
+                        <label for="gender" class="block text-sm font-medium text-gray-700">Gender</label>
+                        <select id="gender" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                            <option value="M">Male (M)</option>
+                            <option value="F">Female (F)</option>
+                            <option value="O">Other (O)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Complaint/Diagnosis 1 -->
+                <div>
+                    <label for="complaint1" class="block text-sm font-medium text-gray-700">Complaint/Diagnosis 1</label>
+                    <textarea id="complaint1" rows="2" placeholder="e.g., Febrile Illness & Viral Pyrexia" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">Febrile Illness & Viral Pyrexia</textarea>
+                </div>
+                
+                <!-- Complaint/Diagnosis 2 -->
+                <div>
+                    <label for="complaint2" class="block text-sm font-medium text-gray-700">Complaint/Diagnosis 2</label>
+                    <input type="text" id="complaint2" value="High-Grade Fever 101 degree cel" placeholder="e.g., High-Grade Fever 101 degree cel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                
+                <!-- Treatment Lines (3 max) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Treatment Lines (3 Max)</label>
+                    <input type="text" id="treatment1" value="Paracetamol Isoprofen" placeholder="Treatment 1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border mb-2">
+                    <input type="text" id="treatment2" value="Oral Rehydration Solution (ORS)" placeholder="Treatment 2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border mb-2">
+                    <input type="text" id="advice" value="Vitamin C Supplements" placeholder="Advice/Supplement" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                
+                <!-- Days Off -->
+                <div>
+                    <label for="days" class="block text-sm font-medium text-gray-700">Rest/Leave Days Recommended</label>
+                    <input type="number" id="days" value="4" placeholder="Number of days" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+
+                <!-- Date -->
+                <div>
+                    <label for="cert-date" class="block text-sm font-medium text-gray-700">Certificate Date</label>
+                    <input type="date" id="cert-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+
+                <!-- Checkbox and Download Button -->
+                <div class="pt-4">
+                    <div class="flex items-center mb-4">
+                        <input id="terms" type="checkbox" class="h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                        <label for="terms" class="ml-2 block text-sm text-gray-900">
+                            I agree to the Terms and Conditions.
+                        </label>
+                    </div>
+                    <button type="button" id="download-btn" disabled class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-400 hover:bg-gray-500 transition duration-150">
+                        Download Screenshot (Disabled)
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Certificate Preview (Right Column) -->
+        <div class="flex flex-col items-center lg:items-start">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Medical Certificate Preview</h2>
+            <div id="certificate" class="certificate-preview flex-shrink-0">
+                
+                <!-- --- Header --- -->
+                <div class="text-center mb-6">
+                    <div class="flex justify-center items-center text-red-700 mb-1">
+                        <div class="cross-icon mr-2"></div>
+                        <span class="font-extrabold text-xl tracking-wider">D.P.K HOSPITAL</span>
+                        <div class="cross-icon ml-2"></div>
+                    </div>
+                    <p class="text-xs font-semibold text-gray-700">D1/3 CHD RD, OPP. VASANT KUNJ, NEW DELHI</p>
+                    <h3 class="font-bold text-sm text-gray-800 mt-2 border-t border-b border-gray-300 py-1">
+                        रविवार सुबह अवकाश रहेगा।
+                    </h3>
+                </div>
+
+                <div class="flex justify-between items-end mb-2">
+                    <div class="text-left">
+                        <p class="text-sm font-medium">Name: <span id="cert-name" class="handwritten text-base">Raj Chourasiya</span></p>
+                    </div>
+                    <div class="text-right text-gray-600 text-sm">
+                        Date: <span id="cert-date-display" class="handwritten text-base text-gray-800">01/01/25</span>
+                    </div>
+                </div>
+                
+                <!-- --- Patient Details --- -->
+                <div class="flex justify-between mb-4 border-b border-gray-300 pb-2">
+                    <p class="text-sm font-medium">Age: <span id="cert-age" class="handwritten">25</span></p>
+                    <p class="text-sm font-medium">Gender: <span id="cert-gender" class="handwritten">(M)</span></p>
+                </div>
+                
+                <!-- --- Main Body: Diagnosis & Treatment --- -->
+                <div class="flex-grow pb-4 mb-2"> <!-- Reduced bottom margin -->
+                    <div class="flex items-start mb-4">
+                        <span class="rx-symbol">Rx</span>
+                        <div class="flex-1 space-y-2 pt-2">
+                            <p id="cert-complaint1" class="handwritten text-base italic leading-snug">Febrile Illness & Viral Pyrexia</p>
+                            <p id="cert-complaint2" class="handwritten text-base italic leading-snug">High-Grade Fever 101 degree cel</p>
+                            <p id="cert-treatment1" class="handwritten text-base leading-snug">Paracetamol Isoprofen</p>
+                            <p id="cert-treatment2" class="handwritten text-base leading-snug">Oral Rehydration Solution (ORS)</p>
+                            <p id="cert-advice" class="handwritten text-base leading-snug">Vitamin C Supplements</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Days Advice - MOVED HIGHER FOR BETTER FLOW -->
+                    <p class="text-xs font-bold text-gray-700 mt-6 mb-1 uppercase border-t border-gray-300 pt-2">Advice:</p>
+                    <p class="text-sm font-medium">
+                        <span class="text-gray-700">Rest Recommended for </span>
+                        <span id="cert-days" class="handwritten text-lg font-bold">4</span> 
+                        <span class="text-gray-700"> Days.</span>
+                    </p>
+                </div>
+
+                <!-- --- Footer / Signature (Stays at the bottom) --- -->
+                <div class="mt-auto pt-4 border-t border-gray-400">
+                    <div class="text-right">
+                        <p class="text-xs text-gray-800 font-bold mb-1">
+                           Dr. Vijay Kumar, D.P.K Hospital
+                        </p>
+                        <p class="text-xs text-gray-600">
+                            9010425, OPP. VASANT VIJAY NAGAR, TELEPHONE NO. 9845326541
+                        </p>
+                        <p class="text-xs text-gray-600 mt-1">
+                            ओपीडी समय: सुबह 10:00 से 12:00 शाम 6:00 से 8:00
+                        </p>
+                        <div class="border-t border-gray-500 inline-block px-4 mt-2"></div>
+                        <p id="cert-signature" class="handwritten text-lg mt-1">Dr. Vijay Kumar (MD)</p>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="text-xs mt-2 text-gray-500 w-full max-w-sm">
+                *The certificate size is optimized for display. The downloaded image will be of higher quality (800x1100).
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('generator-form');
+            const downloadBtn = document.getElementById('download-btn');
+            const termsCheckbox = document.getElementById('terms');
+            const certificateContainer = document.getElementById('certificate');
+            const dateInput = document.getElementById('cert-date');
+
+            // Set initial date to today
+            const today = new Date();
+            const year = String(today.getFullYear()).slice(-2);
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const defaultDateStr = `${day}/${month}/${year}`;
+            document.getElementById('cert-date-display').textContent = defaultDateStr;
+            // Also set the value of the date input to allow user to change it easily
+            dateInput.value = today.toISOString().substring(0, 10);
+
+            // --- Real-time Update Logic ---
+            const updateCertificate = () => {
+                // Get values from input fields based on the new structure
+                const name = document.getElementById('name').value || "Patient Name";
+                const age = document.getElementById('age').value || "XX";
+                const gender = document.getElementById('gender').value || "M";
+                const days = document.getElementById('days').value || "0";
+                
+                // New Complaint/Diagnosis fields
+                const complaint1 = document.getElementById('complaint1').value;
+                const complaint2 = document.getElementById('complaint2').value;
+
+                // New Treatment/Advice fields
+                const treatment1 = document.getElementById('treatment1').value;
+                const treatment2 = document.getElementById('treatment2').value;
+                const advice = document.getElementById('advice').value;
+                
+                // Date formatting (DD/MM/YY)
+                let formattedDate = defaultDateStr;
+                if (dateInput.value) {
+                    const d = new Date(dateInput.value);
+                    const y = String(d.getFullYear()).slice(-2);
+                    const m = String(d.getMonth() + 1).padStart(2, '0');
+                    const dd = String(d.getDate()).padStart(2, '0');
+                    formattedDate = `${dd}/${m}/${y}`;
+                }
+
+                // Update certificate elements
+                document.getElementById('cert-name').textContent = name;
+                document.getElementById('cert-age').textContent = age;
+                document.getElementById('cert-gender').textContent = `(${gender.toUpperCase()})`;
+                document.getElementById('cert-days').textContent = days;
+                document.getElementById('cert-date-display').textContent = formattedDate;
+
+                // Update Complaint/Diagnosis lines
+                document.getElementById('cert-complaint1').textContent = complaint1;
+                document.getElementById('cert-complaint2').textContent = complaint2;
+
+                // Update Treatment/Advice lines
+                document.getElementById('cert-treatment1').textContent = treatment1;
+                document.getElementById('cert-treatment2').textContent = treatment2;
+                document.getElementById('cert-advice').textContent = advice;
+            };
+
+            // Attach event listeners to all form controls for real-time updates
+            const inputElements = form.querySelectorAll('input, select, textarea');
+            inputElements.forEach(input => {
+                input.addEventListener('input', updateCertificate);
+            });
+
+            // Initial update
+            updateCertificate();
+
+            // --- Checkbox and Button State Logic ---
+            termsCheckbox.addEventListener('change', () => {
+                downloadBtn.disabled = !termsCheckbox.checked;
+                downloadBtn.classList.toggle('bg-green-600', termsCheckbox.checked);
+                downloadBtn.classList.toggle('hover:bg-green-700', termsCheckbox.checked);
+                downloadBtn.classList.toggle('bg-gray-400', !termsCheckbox.checked);
+                downloadBtn.classList.toggle('hover:bg-gray-500', !termsCheckbox.checked);
+                downloadBtn.textContent = termsCheckbox.checked ? 'Download Screenshot' : 'Download Screenshot (Disabled)';
+            });
+
+
+            // --- Download Screenshot Logic (html2canvas) ---
+            downloadBtn.addEventListener('click', async () => {
+                if (!termsCheckbox.checked) {
+                    // Use custom message box instead of alert()
+                    console.error("Please agree to the terms and conditions.");
+                    const messageBox = document.createElement('div');
+                    messageBox.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50';
+                    messageBox.innerHTML = `
+                        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+                            <h3 class="text-xl font-bold text-red-600 mb-3">Action Required</h3>
+                            <p class="text-gray-700 mb-4">You must agree to the Terms and Conditions before downloading the certificate.</p>
+                            <button onclick="this.parentNode.parentNode.remove()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">OK</button>
+                        </div>
+                    `;
+                    document.body.appendChild(messageBox);
+                    return;
+                }
+                
+                downloadBtn.textContent = 'Generating... Please wait.';
+                downloadBtn.disabled = true;
+
+                try {
+                    // Use html2canvas to capture the certificate div
+                    const canvas = await html2canvas(certificateContainer, {
+                        scale: 3, // Increase scale for higher resolution/quality
+                        useCORS: true, // Important if using external background image
+                    });
+
+                    // Convert canvas to a data URL
+                    const image = canvas.toDataURL('image/png');
+
+                    // Create a temporary link element for download
+                    const link = document.createElement('a');
+                    link.href = image;
+                    link.download = 'medical_certificate_' + document.getElementById('name').value.replace(/\s/g, '_') + '.png';
+                    
+                    // Simulate a click on the link to trigger download
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                } catch (error) {
+                    console.error("Error generating certificate screenshot:", error);
+                    // Inform the user of the failure
+                    const messageBox = document.createElement('div');
+                    messageBox.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50';
+                    messageBox.innerHTML = `
+                        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+                            <h3 class="text-xl font-bold text-red-600 mb-3">Download Failed</h3>
+                            <p class="text-gray-700 mb-4">There was an error generating the image. Check the console for details.</p>
+                            <button onclick="this.parentNode.parentNode.remove()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">OK</button>
+                        </div>
+                    `;
+                    document.body.appendChild(messageBox);
+                } finally {
+                    downloadBtn.textContent = 'Download Screenshot';
+                    downloadBtn.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

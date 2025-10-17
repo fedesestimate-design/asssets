@@ -1,0 +1,1 @@
+make this using html css and js, this is medical certificate generator tool that make real looking certificate , and on download it download that screenshot , the info in the picture of certificate chage realtime oninput, and its google font that is look like handwritten , and at background its simple certificate pic

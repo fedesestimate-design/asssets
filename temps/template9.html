@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palak Maternity Hospital Certificate Generator</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Handwritten Google Font (Caveat) -->
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Load html2canvas for screenshot functionality -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
+    <style>
+        /* Custom styles for the Certificate Preview */
+        .certificate-preview {
+            background-image: url('https://placehold.co/800x1100/f8f8f8');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            
+            width: 100%;
+            height: 100%;
+            max-width: 400px; 
+            max-height: 550px;
+            
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem 1.5rem 1.5rem 1.5rem;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #ddd;
+        }
+
+        /* Handwritten Font Class */
+        .handwritten {
+            font-family: 'Caveat', cursive;
+            font-size: 1.15rem;
+            line-height: 1.5;
+            transition: color 0.1s ease-in-out;
+        }
+
+        /* Handwritten Color Classes */
+        .color-light-blue { color: #6495ED; /* Cornflower Blue */ }
+        .color-ball-pen { color: #000080; /* Navy Blue - default */ }
+        .color-gel-pen { color: #0000CD; /* Medium Blue */ }
+
+        /* Responsive layout for the main container */
+        @media (min-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        /* Remove ugly focus ring */
+        input:focus, textarea:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #3b82f640;
+        }
+
+        .rx-symbol {
+            font-family: 'Times New Roman', serif;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #d85050;
+            line-height: 1;
+            margin-right: 10px;
+            margin-top: -5px; /* Pulls RX up slightly */
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans min-h-screen p-4 sm:p-8">
+
+    <div class="max-w-7xl mx-auto main-container lg:grid lg:gap-12">
+        
+        <!-- Input Form (Left Column) -->
+        <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg mb-8 lg:mb-0">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b pb-3">Certificate Details Input</h2>
+            <form id="generator-form" class="space-y-4">
+                
+                <!-- Name -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700">Patient Name</label>
+                    <input type="text" id="name" value="Raj Chourasiya" placeholder="Enter Patient Name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                
+                <!-- Age & Gender -->
+                <div class="flex space-x-4">
+                    <div class="flex-1">
+                        <label for="age" class="block text-sm font-medium text-gray-700">Age</label>
+                        <input type="number" id="age" value="24" placeholder="Age" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                    </div>
+                    <div class="flex-1">
+                        <label for="gender" class="block text-sm font-medium text-gray-700">Gender</label>
+                        <select id="gender" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                            <option value="F">Female (F)</option>
+                            <option value="M">Male (M)</option>
+                            <option value="O">Other (O)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <hr class="border-gray-200">
+                <p class="text-sm font-bold text-gray-700">Prescription Lines (6 Max)</p>
+
+                <!-- Prescription/Diagnosis 1 -->
+                <div>
+                    <input type="text" id="presc1" value="Citrus dysgeusia in gestation" placeholder="Line 1: Diagnosis/Complaint" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                <!-- Prescription/Diagnosis 2 -->
+                <div>
+                    <input type="text" id="presc2" value="Hyperglycemic dysgeusia gestation" placeholder="Line 2: Diagnosis/Complaint" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                <!-- Prescription 3 -->
+                <div>
+                    <input type="text" id="presc3" value="Gastational Hyperacidity Post Prondial" placeholder="Line 3: Treatment/Instruction" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                <!-- Prescription 4 -->
+                <div>
+                    <input type="text" id="presc4" value="Gingerol and Citrus Therapy" placeholder="Line 4: Treatment/Instruction" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                <!-- Prescription 5 -->
+                <div>
+                    <input type="text" id="presc5" value="Pyridoxine and Benjamin Regimen" placeholder="Line 5: Treatment/Instruction" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+                 <!-- Prescription 6 -->
+                <div>
+                    <input type="text" id="presc6" value="Pantoprazole and Antacids" placeholder="Line 6: Treatment/Instruction" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+
+                <!-- Days Off -->
+                <div>
+                    <label for="days" class="block text-sm font-medium text-gray-700">Rest/Leave Days Recommended</label>
+                    <input type="number" id="days" value="4" placeholder="Number of days" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+
+                <!-- Date -->
+                <div>
+                    <label for="cert-date" class="block text-sm font-medium text-gray-700">Certificate Date</label>
+                    <input type="date" id="cert-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                </div>
+
+                <!-- Handwritten Color Selector -->
+                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <label class="block text-sm font-bold text-gray-800 mb-2">Select Handwritten Text Color</label>
+                    <div class="space-y-1" id="color-selector">
+                        <div class="flex items-center">
+                            <input id="color-ball-pen" name="pen-color" type="radio" value="ball-pen" checked class="h-4 w-4 text-blue-800 border-gray-300 focus:ring-blue-500">
+                            <label for="color-ball-pen" class="ml-2 text-sm text-gray-700">Ball Pen Blue (Default)</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="color-light-blue" name="pen-color" type="radio" value="light-blue" class="h-4 w-4 text-blue-500 border-gray-300 focus:ring-blue-500">
+                            <label for="color-light-blue" class="ml-2 text-sm text-gray-700">Light Blue Ink</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="color-gel-pen" name="pen-color" type="radio" value="gel-pen" class="h-4 w-4 text-blue-700 border-gray-300 focus:ring-blue-500">
+                            <label for="color-gel-pen" class="ml-2 text-sm text-gray-700">Gel Pen Blue</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Checkbox and Download Button -->
+                <div class="pt-4">
+                    <div class="flex items-center mb-4">
+                        <input id="terms" type="checkbox" class="h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                        <label for="terms" class="ml-2 block text-sm text-gray-900">
+                            I agree to the Terms and Conditions.
+                        </label>
+                    </div>
+                    <button type="button" id="download-btn" disabled class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-400 hover:bg-gray-500 transition duration-150">
+                        Download Screenshot (Disabled)
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Certificate Preview (Right Column) -->
+        <div class="flex flex-col items-center lg:items-start">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Medical Certificate Preview</h2>
+            <div id="certificate" class="certificate-preview flex-shrink-0">
+                
+                <!-- --- Header --- -->
+                <div class="text-center mb-2">
+                    <p class="text-sm font-semibold text-gray-700">Dr. Palak Patel</p>
+                    <p class="text-xs text-gray-500 mb-2">Gynecologist and Obstetrician</p>
+                    <h2 class="font-extrabold text-xl text-red-700 tracking-wider">Palak Maternity Hospital</h2>
+                    <p class="text-xs font-semibold text-gray-700 mt-1">D1/3 CHD RD, OPP. VASANT KUNJ, NEW DELHI</p>
+                    <div class="border-b border-dashed border-gray-400 mt-2"></div>
+                </div>
+
+                <!-- --- Patient Details and Date --- -->
+                <div class="flex justify-between items-end mb-2 text-sm">
+                    <div class="flex space-x-2">
+                        <p class="font-medium">Name: <span id="cert-name" class="handwritten text-base">Raj Chourasiya</span></p>
+                        <p class="font-medium">Age: <span id="cert-age" class="handwritten text-base">24</span></p>
+                        <p class="font-medium">Sex: <span id="cert-gender" class="handwritten text-base">F</span></p>
+                    </div>
+                    <p class="text-gray-600">Date: <span id="cert-date-display" class="handwritten text-base text-gray-800">17/10/25</span></p>
+                </div>
+                
+                <div class="flex items-start mb-1 flex-grow">
+                    <span class="rx-symbol">Rx</span>
+                    <div class="flex-1 space-y-1.5 pt-2">
+                        <!-- Prescription Lines -->
+                        <p id="cert-presc1" class="handwritten text-base italic leading-snug">Citrus dysgeusia in gestation</p>
+                        <p id="cert-presc2" class="handwritten text-base italic leading-snug">Hyperglycemic dysgeusia gestation</p>
+                        <p id="cert-presc3" class="handwritten text-base leading-snug">Gastational Hyperacidity Post Prondial</p>
+                        <p id="cert-presc4" class="handwritten text-base leading-snug">Gingerol and Citrus Therapy</p>
+                        <p id="cert-presc5" class="handwritten text-base leading-snug">Pyridoxine and Benjamin Regimen</p>
+                        <p id="cert-presc6" class="handwritten text-base leading-snug">Pantoprazole and Antacids</p>
+                        
+                        <!-- Rest/Advice Section -->
+                        <div class="pt-3">
+                             <p class="text-sm font-medium mt-2">
+                                <span class="text-gray-700">Rest Recommended for </span>
+                                <span id="cert-days" class="handwritten text-lg font-bold">4</span> 
+                                <span class="text-gray-700"> Days.</span>
+                            </p>
+                            <p id="cert-advice" class="handwritten text-base mt-2">
+                                Prescribed drugs of strict adherence.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- --- Footer / Signature --- -->
+                <div class="mt-auto pt-4 text-sm text-gray-700">
+                    <div class="flex justify-between items-center">
+                         <p class="text-xs">Telephone No. 97624 292243</p>
+                        <div class="text-right">
+                            <div class="border-t border-gray-500 w-32 ml-auto mb-1"></div>
+                            <p id="cert-signature" class="handwritten text-lg mt-1">Dr. Palak Patel</p>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="text-xs mt-2 text-gray-500 w-full max-w-sm">
+                *The certificate size is optimized for display. The downloaded image will be of higher quality (800x1100).
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('generator-form');
+            const downloadBtn = document.getElementById('download-btn');
+            const termsCheckbox = document.getElementById('terms');
+            const certificateContainer = document.getElementById('certificate');
+            const dateInput = document.getElementById('cert-date');
+            const colorSelector = document.getElementById('color-selector');
+            const handwrittenElements = document.querySelectorAll('.handwritten');
+
+            // --- Initial Setup ---
+
+            // Function to format Date as DD/MM/YY
+            const formatDate = (dateValue) => {
+                if (!dateValue) return "DD/MM/YY";
+                const d = new Date(dateValue);
+                const y = String(d.getFullYear()).slice(-2);
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                return `${dd}/${m}/${y}`;
+            };
+
+            // Set initial date to today
+            const today = new Date();
+            dateInput.value = today.toISOString().substring(0, 10);
+            const defaultDateStr = formatDate(dateInput.value);
+            document.getElementById('cert-date-display').textContent = defaultDateStr;
+
+            // --- Real-time Update Logic ---
+            const updateCertificate = () => {
+                const name = document.getElementById('name').value || "Patient Name";
+                const age = document.getElementById('age').value || "XX";
+                const gender = document.getElementById('gender').value.slice(0, 1) || "F";
+                const days = document.getElementById('days').value || "0";
+                
+                // Prescription/Advice fields
+                const presc1 = document.getElementById('presc1').value;
+                const presc2 = document.getElementById('presc2').value;
+                const presc3 = document.getElementById('presc3').value;
+                const presc4 = document.getElementById('presc4').value;
+                const presc5 = document.getElementById('presc5').value;
+                const presc6 = document.getElementById('presc6').value;
+                
+                // Static Advice Line (to be kept dynamic in case user wants to change)
+                const adviceText = "Prescribed drugs of strict adherence.";
+
+                // Update certificate elements
+                document.getElementById('cert-name').textContent = name;
+                document.getElementById('cert-age').textContent = age;
+                document.getElementById('cert-gender').textContent = gender; // Changed from (F) to just F
+                document.getElementById('cert-days').textContent = days;
+                document.getElementById('cert-date-display').textContent = formatDate(dateInput.value);
+
+                // Update Prescription lines
+                document.getElementById('cert-presc1').textContent = presc1;
+                document.getElementById('cert-presc2').textContent = presc2;
+                document.getElementById('cert-presc3').textContent = presc3;
+                document.getElementById('cert-presc4').textContent = presc4;
+                document.getElementById('cert-presc5').textContent = presc5;
+                document.getElementById('cert-presc6').textContent = presc6;
+                document.getElementById('cert-advice').textContent = adviceText;
+            };
+
+            // Attach event listeners to all form controls for real-time updates
+            const inputElements = form.querySelectorAll('input, select, textarea');
+            inputElements.forEach(input => {
+                input.addEventListener('input', updateCertificate);
+            });
+
+            // --- Color Switcher Logic ---
+            colorSelector.addEventListener('change', (event) => {
+                const selectedColor = event.target.value;
+                // Remove all color classes first
+                handwrittenElements.forEach(el => {
+                    el.classList.remove('color-light-blue', 'color-ball-pen', 'color-gel-pen');
+                });
+                // Add the selected color class
+                if (selectedColor === 'light-blue') {
+                    handwrittenElements.forEach(el => el.classList.add('color-light-blue'));
+                } else if (selectedColor === 'gel-pen') {
+                    handwrittenElements.forEach(el => el.classList.add('color-gel-pen'));
+                } else { // default to ball-pen
+                    handwrittenElements.forEach(el => el.classList.add('color-ball-pen'));
+                }
+            });
+
+            // Initial color set (default to ball-pen)
+            handwrittenElements.forEach(el => el.classList.add('color-ball-pen'));
+            updateCertificate();
+
+
+            // --- Checkbox and Button State Logic ---
+            termsCheckbox.addEventListener('change', () => {
+                downloadBtn.disabled = !termsCheckbox.checked;
+                downloadBtn.classList.toggle('bg-green-600', termsCheckbox.checked);
+                downloadBtn.classList.toggle('hover:bg-green-700', termsCheckbox.checked);
+                downloadBtn.classList.toggle('bg-gray-400', !termsCheckbox.checked);
+                downloadBtn.classList.toggle('hover:bg-gray-500', !termsCheckbox.checked);
+                downloadBtn.textContent = termsCheckbox.checked ? 'Download Screenshot' : 'Download Screenshot (Disabled)';
+            });
+
+
+            // --- Download Screenshot Logic (html2canvas) ---
+            downloadBtn.addEventListener('click', async () => {
+                if (!termsCheckbox.checked) {
+                    // Use custom message box instead of alert()
+                    console.error("Please agree to the terms and conditions.");
+                    const messageBox = document.createElement('div');
+                    messageBox.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50';
+                    messageBox.innerHTML = `
+                        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+                            <h3 class="text-xl font-bold text-red-600 mb-3">Action Required</h3>
+                            <p class="text-gray-700 mb-4">You must agree to the Terms and Conditions before downloading the certificate.</p>
+                            <button onclick="this.parentNode.parentNode.remove()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">OK</button>
+                        </div>
+                    `;
+                    document.body.appendChild(messageBox);
+                    return;
+                }
+                
+                downloadBtn.textContent = 'Generating... Please wait.';
+                downloadBtn.disabled = true;
+
+                try {
+                    // Use html2canvas to capture the certificate div
+                    const canvas = await html2canvas(certificateContainer, {
+                        scale: 3, // Increase scale for higher resolution/quality
+                        useCORS: true, 
+                    });
+
+                    // Convert canvas to a data URL
+                    const image = canvas.toDataURL('image/png');
+
+                    // Create a temporary link element for download
+                    const link = document.createElement('a');
+                    link.href = image;
+                    link.download = 'medical_certificate_' + document.getElementById('name').value.replace(/\s/g, '_') + '.png';
+                    
+                    // Simulate a click on the link to trigger download
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                } catch (error) {
+                    console.error("Error generating certificate screenshot:", error);
+                    // Inform the user of the failure
+                    const messageBox = document.createElement('div');
+                    messageBox.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50';
+                    messageBox.innerHTML = `
+                        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+                            <h3 class="text-xl font-bold text-red-600 mb-3">Download Failed</h3>
+                            <p class="text-gray-700 mb-4">There was an error generating the image. Check the console for details.</p>
+                            <button onclick="this.parentNode.parentNode.remove()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">OK</button>
+                        </div>
+                    `;
+                    document.body.appendChild(messageBox);
+                } finally {
+                    downloadBtn.textContent = 'Download Screenshot';
+                    downloadBtn.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

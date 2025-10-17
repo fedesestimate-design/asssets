@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Certificate Generator - 6 Templates</title>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Dancing+Script:wght@400;700&family=Satisfy&family=Pacifico&family=Kalam:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .template-selector {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .template-selector h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .template-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .template-btn {
+            padding: 15px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .template-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .template-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #764ba2;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .form-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .form-section h2 {
+            font-size: 28px;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .download-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .download-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .preview-section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 20px;
+        }
+
+        .preview-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+            text-align: center;
+        }
+
+        .certificate {
+            width: 100%;
+            aspect-ratio: 1/1.4;
+            border-radius: 10px;
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Template 1 - Classic Blue */
+        .template-1 {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border: 15px solid #2c3e50;
+        }
+
+        .template-1 .cert-header {
+            text-align: center;
+            border-bottom: 3px solid #2c3e50;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .template-1 .cert-header h1 {
+            font-size: 32px;
+            color: #2c3e50;
+            font-style: italic;
+        }
+
+        /* Template 2 - Green Medical */
+        .template-2 {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border: 15px solid #2e7d32;
+        }
+
+        .template-2 .cert-header {
+            text-align: center;
+            border-bottom: 3px solid #2e7d32;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .template-2 .cert-header h1 {
+            font-size: 32px;
+            color: #2e7d32;
+            font-family: 'Pacifico', cursive;
+        }
+
+        /* Template 3 - Purple Elegant */
+        .template-3 {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border: 15px solid #6a1b9a;
+        }
+
+        .template-3 .cert-header {
+            text-align: center;
+            border-bottom: 3px solid #6a1b9a;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .template-3 .cert-header h1 {
+            font-size: 32px;
+            color: #6a1b9a;
+            font-family: 'Satisfy', cursive;
+        }
+
+        /* Template 4 - Orange Modern */
+        .template-4 {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border: 15px solid #e65100;
+        }
+
+        .template-4 .cert-header {
+            text-align: center;
+            border-bottom: 3px solid #e65100;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .template-4 .cert-header h1 {
+            font-size: 32px;
+            color: #e65100;
+            font-family: 'Kalam', cursive;
+        }
+
+        /* Template 5 - Red Professional */
+        .template-5 {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border: 15px solid #c62828;
+        }
+
+        .template-5 .cert-header {
+            text-align: center;
+            border-bottom: 3px solid #c62828;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .template-5 .cert-header h1 {
+            font-size: 32px;
+            color: #c62828;
+            font-family: 'Dancing Script', cursive;
+        }
+
+        /* Template 6 - Teal Fresh */
+        .template-6 {
+            background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+            border: 15px solid #00695c;
+        }
+
+        .template-6 .cert-header {
+            text-align: center;
+            border-bottom: 3px solid #00695c;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .template-6 .cert-header h1 {
+            font-size: 32px;
+            color: #00695c;
+            font-family: 'Caveat', cursive;
+        }
+
+        .cert-header .doctors {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .cert-content {
+            font-family: 'Caveat', cursive;
+            font-size: 22px;
+            color: #000;
+            line-height: 2;
+        }
+
+        .cert-field {
+            display: inline-block;
+            min-width: 100px;
+            border-bottom: 1px solid #333;
+            padding: 0 5px;
+        }
+
+        .cert-footer {
+            margin-top: 40px;
+            text-align: center;
+            font-family: 'Caveat', cursive;
+            font-size: 24px;
+        }
+
+        .signature {
+            margin-top: 30px;
+            text-align: right;
+            font-family: 'Dancing Script', cursive;
+            font-size: 28px;
+            color: #000;
+        }
+
+        .stamp {
+            position: absolute;
+            bottom: 80px;
+            left: 50px;
+            width: 100px;
+            height: 100px;
+            border: 3px solid rgba(102, 126, 234, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: rgba(102, 126, 234, 0.7);
+            text-align: center;
+            transform: rotate(-15deg);
+            font-weight: bold;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .preview-section {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="template-selector">
+            <h2>Choose Certificate Template</h2>
+            <div class="template-buttons">
+                <button class="template-btn active" data-template="1">Template 1<br>Classic Blue</button>
+                <button class="template-btn" data-template="2">Template 2<br>Green Medical</button>
+                <button class="template-btn" data-template="3">Template 3<br>Purple Elegant</button>
+                <button class="template-btn" data-template="4">Template 4<br>Orange Modern</button>
+                <button class="template-btn" data-template="5">Template 5<br>Red Professional</button>
+                <button class="template-btn" data-template="6">Template 6<br>Teal Fresh</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="form-section">
+                <h2>Enter Details</h2>
+                
+                <div class="form-group">
+                    <label>Date:</label>
+                    <input type="date" id="dateInput">
+                </div>
+
+                <div class="form-group">
+                    <label>Name:</label>
+                    <input type="text" id="nameInput" placeholder="12312">
+                </div>
+
+                <div class="form-group">
+                    <label>Age:</label>
+                    <input type="number" id="ageInput" placeholder="12">
+                </div>
+
+                <div class="form-group">
+                    <label>Gender:</label>
+                    <input type="text" id="genderInput" placeholder="M">
+                </div>
+
+                <div class="form-group">
+                    <label>Your Address:</label>
+                    <input type="text" id="addressInput" placeholder="DEH">
+                </div>
+
+                <div class="form-group">
+                    <label>Days:</label>
+                    <input type="number" id="daysInput" placeholder="4">
+                </div>
+
+                <div class="form-group">
+                    <label>Change Phone Number:</label>
+                    <input type="tel" id="phoneInput" placeholder="123123213">
+                </div>
+
+                <div class="form-group">
+                    <label>Change Address:</label>
+                    <input type="text" id="changeAddressInput" placeholder="adsddsd">
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="agreeCheckbox">
+                    <label for="agreeCheckbox">I agree to the Terms and Conditions.</label>
+                </div>
+
+                <button class="download-btn" id="downloadBtn" disabled>DOWNLOAD</button>
+            </div>
+
+            <div class="preview-section">
+                <h3>Medical Certificate Preview</h3>
+                <div class="certificate template-1" id="certificate">
+                    <div class="cert-header">
+                        <h1>Sunrise Multispeciality Hospital</h1>
+                        <div class="doctors">
+                            <div>Dr. Arjun Mehta<br>(MBBS, MD)</div>
+                            <div>Dr. Priya Sharma<br>(MBBS, MS)</div>
+                        </div>
+                    </div>
+
+                    <div class="cert-content">
+                        <p>Pat. Name: <span class="cert-field" id="certName">_____</span></p>
+                        <p>Address: <span class="cert-field" id="certAddress">_____</span></p>
+                        <p>Age/Sex: <span class="cert-field" id="certAge">___</span> / <span class="cert-field" id="certGender">___</span></p>
+                        <p>Date: <span class="cert-field" id="certDate">_____</span></p>
+                        <br>
+                        <p>C/o pain abdomen - stomach<br>
+                        - needs IV<br>
+                        fluids IV antibiotics<br>
+                        tablets - 2gm<br>
+                        P-Plasma injection</p>
+                        <br>
+                        <p>BP 98 / 63</p>
+                        <p>Pulse ® 87 / min</p>
+                        <p>Temp 101°F</p>
+                        <p>Wt 28 kg</p>
+                        <br>
+                        <p>P - Plasma 300</p>
+                        <p>Ultraviolet -</p>
+                    </div>
+
+                    <div class="cert-footer">
+                        <p>Rest For <span class="cert-field" id="certDays">__</span> Days</p>
+                    </div>
+
+                    <div class="signature">
+                        Dr. Arjun Mehta
+                    </div>
+
+                    <div class="stamp">
+                        MEDICAL<br>SEAL
+                    </div>
+
+                    <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); font-size: 11px; color: #666;">
+                        <span id="certPhone">123123213</span> | Dr. ARJUN MEHTA | <span id="certChangeAddress">ADSDDSD</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const dateInput = document.getElementById('dateInput');
+        const nameInput = document.getElementById('nameInput');
+        const ageInput = document.getElementById('ageInput');
+        const genderInput = document.getElementById('genderInput');
+        const addressInput = document.getElementById('addressInput');
+        const daysInput = document.getElementById('daysInput');
+        const phoneInput = document.getElementById('phoneInput');
+        const changeAddressInput = document.getElementById('changeAddressInput');
+        const agreeCheckbox = document.getElementById('agreeCheckbox');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        const certName = document.getElementById('certName');
+        const certAddress = document.getElementById('certAddress');
+        const certAge = document.getElementById('certAge');
+        const certGender = document.getElementById('certGender');
+        const certDate = document.getElementById('certDate');
+        const certDays = document.getElementById('certDays');
+        const certPhone = document.getElementById('certPhone');
+        const certChangeAddress = document.getElementById('certChangeAddress');
+
+        const certificate = document.getElementById('certificate');
+        const templateButtons = document.querySelectorAll('.template-btn');
+
+        // Set default date to today
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.value = today;
+        certDate.textContent = formatDate(today);
+
+        // Template switching
+        templateButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const templateNum = btn.dataset.template;
+                
+                // Update active button
+                templateButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Update certificate template
+                certificate.className = 'certificate template-' + templateNum;
+            });
+        });
+
+        // Real-time updates
+        dateInput.addEventListener('input', (e) => {
+            certDate.textContent = formatDate(e.target.value) || '_____';
+        });
+
+        nameInput.addEventListener('input', (e) => {
+            certName.textContent = e.target.value || '_____';
+        });
+
+        ageInput.addEventListener('input', (e) => {
+            certAge.textContent = e.target.value || '___';
+        });
+
+        genderInput.addEventListener('input', (e) => {
+            certGender.textContent = e.target.value || '___';
+        });
+
+        addressInput.addEventListener('input', (e) => {
+            certAddress.textContent = e.target.value || '_____';
+        });
+
+        daysInput.addEventListener('input', (e) => {
+            certDays.textContent = e.target.value || '__';
+        });
+
+        phoneInput.addEventListener('input', (e) => {
+            certPhone.textContent = e.target.value || '123123213';
+        });
+
+        changeAddressInput.addEventListener('input', (e) => {
+            certChangeAddress.textContent = e.target.value.toUpperCase() || 'ADSDDSD';
+        });
+
+        agreeCheckbox.addEventListener('change', (e) => {
+            downloadBtn.disabled = !e.target.checked;
+        });
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        downloadBtn.addEventListener('click', async () => {
+            const activeTemplate = document.querySelector('.template-btn.active').dataset.template;
+            
+            downloadBtn.textContent = 'Generating...';
+            downloadBtn.disabled = true;
+
+            try {
+                const canvas = await html2canvas(certificate, {
+                    scale: 2,
+                    backgroundColor: '#ffffff',
+                    logging: false,
+                    useCORS: true
+                });
+
+                const link = document.createElement('a');
+                link.download = `medical_certificate_template${activeTemplate}_${nameInput.value || 'patient'}_${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+
+                downloadBtn.textContent = 'DOWNLOAD';
+                downloadBtn.disabled = !agreeCheckbox.checked;
+            } catch (error) {
+                alert('Error generating certificate. Please try again.');
+                downloadBtn.textContent = 'DOWNLOAD';
+                downloadBtn.disabled = !agreeCheckbox.checked;
+            }
+        });
+    </script>
+</body>
+</html>

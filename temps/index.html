@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Certificate Generator - Select a Template</title>
+    <style>
+        /* General Body Styles */
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: #fff;
+            padding: 20px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .logo {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+            color: #0056b3;
+        }
+        header nav ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        header nav ul li {
+            display: inline-block;
+            margin-left: 15px;
+        }
+        header nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        header nav a:hover {
+            color: #0056b3;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 50px 20px;
+            background-color: #eaf7ff;
+        }
+        .hero h2 {
+            font-size: 42px;
+            margin-bottom: 15px;
+            color: #0056b3;
+        }
+        .hero p {
+            font-size: 18px;
+            margin-bottom: 25px;
+        }
+        .cta-button {
+            background-color: #111;
+            color: #fff;
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+        .cta-button:hover {
+            background-color: #333;
+        }
+        .iphone-notice {
+            font-size: 14px;
+            color: #555;
+        }
+
+        /* Templates Section */
+        .templates {
+            padding: 50px 0;
+        }
+        .templates h2 {
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 40px;
+            color: #0056b3;
+        }
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        .template-item {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .template-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+        .template-item img {
+            max-width: 100%;
+            height: auto;
+            aspect-ratio: 8.5 / 11;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #eee;
+        }
+        .template-item .btn {
+            display: inline-block;
+            background-color: #28a745;
+            color: #fff;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+        .template-item .btn:hover {
+            background-color: #218838;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #333;
+            color: #fff;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <h1 class="logo">MedicalCertificateGenerator.com</h1>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="#">Doctors Note</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms and Conditions</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero" id="hero-section">
+            <div class="container">
+                <h2>Medical Certificate Generator</h2>
+                <p>Create your handwritten medical certificate in seconds.</p>
+                <button class="cta-button">WE ADD NEW CERTIFICATES WEEKLY</button>
+                <p class="iphone-notice">For best results, use a desktop or laptop computer.</p>
+            </div>
+        </section>
+
+        <section class="templates" id="templates-section">
+            <div class="container">
+                <h2>Medical Certificate Templates</h2>
+                <div id="template-grid" class="template-grid">
+                    <!-- Template items will be injected by JavaScript -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 MedicalCertificateGenerator.com. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const templateImages = [
+                'https://i.ibb.co/68qt06y/medical-certificate-template.jpg',
+                'https://i.ibb.co/fH7d50T/template2.png',
+                'https://i.ibb.co/yYDv2xT/template3.jpg',
+                'https://i.ibb.co/Jq8yS4x/template4.jpg',
+                'https://i.ibb.co/NTp5b0Y/template5.jpg',
+                'https://i.ibb.co/L5w2S9Q/template6.png',
+                'https://i.ibb.co/dMvL3dZ/template7.jpg',
+                'https://i.ibb.co/z5pDLY3/template8.jpg',
+                'https://i.ibb.co/z7Y2YqW/template9.jpg',
+                'https://i.ibb.co/3s7sWnQ/template10.jpg'
+            ];
+
+            const grid = document.getElementById('template-grid');
+            for (let i = 0; i < templateImages.length; i++) {
+                const templateId = i + 1;
+                grid.innerHTML += `
+                    <div class="template-item">
+                        <img src="${templateImages[i]}" alt="Certificate Template ${templateId}" loading="lazy">
+                        <a href="generate.html?template=${templateId}" class="btn">CERTIFICATE ${templateId}</a>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
+

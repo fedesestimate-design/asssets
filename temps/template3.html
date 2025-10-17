@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Certificate Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        
+        .form-container {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .preview-container {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .checkbox-group {
+            margin-top: 10px;
+        }
+        
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+        
+        button:hover {
+            background: #2980b9;
+        }
+        
+        .certificate {
+            width: 100%;
+            max-width: 600px;
+            background: #f9f3e4;
+            border: 15px solid #8b4513;
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        
+        .certificate-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .certificate-header h2 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 36px;
+            color: #8b0000;
+            margin-bottom: 10px;
+        }
+        
+        .certificate-header p {
+            font-family: 'Caveat', cursive;
+            font-size: 20px;
+            color: #333;
+        }
+        
+        .certificate-content {
+            font-family: 'Caveat', cursive;
+            font-size: 22px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .certificate-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+        
+        .doctor-signature {
+            text-align: center;
+        }
+        
+        .signature-line {
+            border-top: 1px solid #333;
+            width: 200px;
+            margin: 5px auto;
+        }
+        
+        .stamp {
+            position: absolute;
+            bottom: 40px;
+            right: 40px;
+            width: 120px;
+            height: 120px;
+            border: 2px solid red;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(-15deg);
+            opacity: 0.7;
+        }
+        
+        .stamp-content {
+            text-align: center;
+            font-family: 'Caveat', cursive;
+            font-weight: bold;
+            color: red;
+            font-size: 16px;
+        }
+        
+        .watermark {
+            position: absolute;
+            opacity: 0.1;
+            font-size: 80px;
+            transform: rotate(-45deg);
+            top: 30%;
+            left: 10%;
+            color: #8b0000;
+            pointer-events: none;
+            font-family: 'Dancing Script', cursive;
+        }
+        
+        .download-btn {
+            background: #27ae60;
+            margin-top: 10px;
+        }
+        
+        .download-btn:hover {
+            background: #219653;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .certificate {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Medical Certificate Generator</h1>
+            <p>Fill out the form and download your custom medical certificate</p>
+        </header>
+        
+        <div class="content">
+            <div class="form-container">
+                <h2>Enter Details</h2>
+                
+                <div class="form-group">
+                    <label for="date">Date:</label>
+                    <input type="date" id="date" value="">
+                </div>
+                
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" placeholder="Enter patient name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="age">Age:</label>
+                    <input type="number" id="age" placeholder="Enter age">
+                </div>
+                
+                <div class="form-group">
+                    <label for="gender">Gender:</label>
+                    <select id="gender">
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="prescription1">Prescription 1 (Optional):</label>
+                    <input type="text" id="prescription1" placeholder="e.g., Febrile Illness & Viral Pyrexia">
+                </div>
+                
+                <div class="form-group">
+                    <label for="prescription2">Prescription 2 (Optional):</label>
+                    <input type="text" id="prescription2" placeholder="e.g., Neurocranial Pain">
+                </div>
+                
+                <div class="form-group">
+                    <label for="days">Days:</label>
+                    <input type="number" id="days" placeholder="Number of rest days">
+                </div>
+                
+                <div class="form-group">
+                    <label>Select a Handwritten Text Color:</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="lightBlue" name="color" value="lightBlue" checked>
+                            <label for="lightBlue">Light Blue</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="lightBallPen" name="color" value="lightBallPen">
+                            <label for="lightBallPen">Light Ball Pen</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="ballPenBlue" name="color" value="ballPenBlue">
+                            <label for="ballPenBlue">Ball Pen Blue</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="gelPenBlue" name="color" value="gelPenBlue">
+                            <label for="gelPenBlue">Gel Pen Blue</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Select Certificate Default / Lowercase:</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="default" name="case" value="default" checked>
+                            <label for="default">Default</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="lowercase" name="case" value="lowercase">
+                            <label for="lowercase">Lowercase All Letters</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="terms">
+                            <label for="terms">I agree to the Terms and Conditions</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="downloadBtn">DOWNLOAD CERTIFICATE</button>
+            </div>
+            
+            <div class="preview-container">
+                <h2>Medical Certificate Preview</h2>
+                <div class="certificate" id="certificate">
+                    <div class="watermark">MEDICAL CERTIFICATE</div>
+                    <div class="certificate-header">
+                        <h2>BIRUCCI MEDICAL CENTER</h2>
+                        <p>Specialized Healthcare Services</p>
+                    </div>
+                    
+                    <div class="certificate-content">
+                        <p>This is to certify that <span id="preview-name" class="handwritten">Raj Chourasiya</span>, 
+                        <span id="preview-age" class="handwritten">25</span> years old, 
+                        <span id="preview-gender" class="handwritten">M</span>, has been under my medical care.</p>
+                        
+                        <p>Diagnosis: <span id="preview-prescription1" class="handwritten">Febrile Illness & Viral Pyrexia</span>
+                        <span id="preview-prescription2" class="handwritten">, Neurocranial Pain</span></p>
+                        
+                        <p>The patient requires <span id="preview-days" class="handwritten">4</span> days of medical rest and is advised to avoid strenuous activities.</p>
+                        
+                        <p>Date: <span id="preview-date" class="handwritten">07 / 02 / 26</span></p>
+                    </div>
+                    
+                    <div class="certificate-footer">
+                        <div class="doctor-signature">
+                            <p>Dr. Alessandro Birucci</p>
+                            <div class="signature-line"></div>
+                            <p>Medical Practitioner</p>
+                            <p>License: MC-5847392</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stamp">
+                        <div class="stamp-content">
+                            MEDICAL<br>STAMP<br>ORIGINAL
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="previewDownloadBtn" class="download-btn">DOWNLOAD PREVIEW</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set default date to today
+        document.getElementById('date').valueAsDate = new Date();
+        
+        // Get all input elements
+        const inputs = {
+            date: document.getElementById('date'),
+            name: document.getElementById('name'),
+            age: document.getElementById('age'),
+            gender: document.getElementById('gender'),
+            prescription1: document.getElementById('prescription1'),
+            prescription2: document.getElementById('prescription2'),
+            days: document.getElementById('days'),
+            color: document.getElementsByName('color'),
+            case: document.getElementsByName('case')
+        };
+        
+        // Get all preview elements
+        const previews = {
+            name: document.getElementById('preview-name'),
+            age: document.getElementById('preview-age'),
+            gender: document.getElementById('preview-gender'),
+            prescription1: document.getElementById('preview-prescription1'),
+            prescription2: document.getElementById('preview-prescription2'),
+            days: document.getElementById('preview-days'),
+            date: document.getElementById('preview-date')
+        };
+        
+        // Format date for display
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = String(date.getFullYear()).slice(-2);
+            return `${day} / ${month} / ${year}`;
+        }
+        
+        // Update preview based on input
+        function updatePreview() {
+            // Update name
+            previews.name.textContent = inputs.name.value || 'Raj Chourasiya';
+            
+            // Update age
+            previews.age.textContent = inputs.age.value || '25';
+            
+            // Update gender
+            previews.gender.textContent = inputs.gender.value || 'M';
+            
+            // Update prescriptions
+            previews.prescription1.textContent = inputs.prescription1.value || 'Febrile Illness & Viral Pyrexia';
+            if (inputs.prescription2.value) {
+                previews.prescription2.textContent = ', ' + inputs.prescription2.value;
+            } else {
+                previews.prescription2.textContent = ', Neurocranial Pain';
+            }
+            
+            // Update days
+            previews.days.textContent = inputs.days.value || '4';
+            
+            // Update date
+            if (inputs.date.value) {
+                previews.date.textContent = formatDate(inputs.date.value);
+            } else {
+                const today = new Date();
+                previews.date.textContent = formatDate(today.toISOString().split('T')[0]);
+            }
+            
+            // Apply color
+            const selectedColor = document.querySelector('input[name="color"]:checked').value;
+            const handwrittenElements = document.querySelectorAll('.handwritten');
+            
+            handwrittenElements.forEach(el => {
+                el.style.color = getColorValue(selectedColor);
+            });
+            
+            // Apply case
+            const selectedCase = document.querySelector('input[name="case"]:checked').value;
+            if (selectedCase === 'lowercase') {
+                previews.name.textContent = previews.name.textContent.toLowerCase();
+                previews.prescription1.textContent = previews.prescription1.textContent.toLowerCase();
+                previews.prescription2.textContent = previews.prescription2.textContent.toLowerCase();
+            }
+        }
+        
+        // Get color value based on selection
+        function getColorValue(colorName) {
+            switch(colorName) {
+                case 'lightBlue': return '#87CEEB';
+                case 'lightBallPen': return '#6A9AB0';
+                case 'ballPenBlue': return '#1E90FF';
+                case 'gelPenBlue': return '#4169E1';
+                default: return '#1E90FF';
+            }
+        }
+        
+        // Add event listeners to all inputs
+        inputs.date.addEventListener('input', updatePreview);
+        inputs.name.addEventListener('input', updatePreview);
+        inputs.age.addEventListener('input', updatePreview);
+        inputs.gender.addEventListener('change', updatePreview);
+        inputs.prescription1.addEventListener('input', updatePreview);
+        inputs.prescription2.addEventListener('input', updatePreview);
+        inputs.days.addEventListener('input', updatePreview);
+        
+        for (let radio of inputs.color) {
+            radio.addEventListener('change', updatePreview);
+        }
+        
+        for (let radio of inputs.case) {
+            radio.addEventListener('change', updatePreview);
+        }
+        
+        // Download functionality
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            if (!document.getElementById('terms').checked) {
+                alert('Please agree to the Terms and Conditions');
+                return;
+            }
+            
+            downloadCertificate();
+        });
+        
+        document.getElementById('previewDownloadBtn').addEventListener('click', function() {
+            downloadCertificate();
+        });
+        
+        function downloadCertificate() {
+            const certificate = document.getElementById('certificate');
+            
+            html2canvas(certificate, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                backgroundColor: null
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'medical-certificate.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+        
+        // Initialize preview
+        updatePreview();
+    </script>
+</body>
+</html>

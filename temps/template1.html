@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Certificate Generator - 6 Templates</title>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Dancing+Script:wght@400;700&family=Satisfy&family=Pacifico&family=Kalam:wght@400;700&family=Inter:wght@400;500;600&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .template-selector {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .template-selector h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .template-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .template-btn {
+            padding: 15px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .template-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .template-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #764ba2;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .form-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .form-section h2 {
+            font-size: 28px;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .color-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .color-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .case-options {
+            display: flex;
+            gap: 20px;
+        }
+
+        .case-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .case-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .download-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .download-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .preview-section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 20px;
+        }
+
+        .preview-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+            text-align: center;
+        }
+
+        .certificate {
+            width: 100%;
+            aspect-ratio: 1/1.5;
+            background: #f5f3e8;
+            border-radius: 5px;
+            padding: 30px;
+            position: relative;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            font-family: 'Noto Sans Devanagari', sans-serif;
+        }
+
+        .cert-header {
+            text-align: center;
+            border-bottom: 3px solid #8b1538;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .cert-title {
+            font-size: 28px;
+            color: #8b1538;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .cert-subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .medical-symbol {
+            text-align: center;
+            font-size: 40px;
+            color: #8b1538;
+            margin-bottom: 10px;
+        }
+
+        .left-section {
+            position: absolute;
+            left: 30px;
+            top: 150px;
+            width: 180px;
+        }
+
+        .section-header {
+            background: #8b1538;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            text-align: center;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .section-content {
+            font-size: 10px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .section-content ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .section-content li {
+            margin-bottom: 3px;
+        }
+
+        .section-content li:before {
+            content: "• ";
+            color: #8b1538;
+            font-weight: bold;
+        }
+
+        .right-section {
+            margin-left: 200px;
+            padding-top: 20px;
+        }
+
+        .form-field {
+            margin-bottom: 15px;
+            font-family: 'Caveat', cursive;
+            font-size: 20px;
+            color: #000;
+        }
+
+        .field-label {
+            display: inline-block;
+            min-width: 80px;
+        }
+
+        .field-value {
+            display: inline-block;
+            border-bottom: 1px dotted #333;
+            min-width: 150px;
+            padding: 0 5px;
+        }
+
+        .prescription-area {
+            margin-top: 20px;
+            font-family: 'Caveat', cursive;
+            font-size: 18px;
+            line-height: 1.8;
+            min-height: 200px;
+        }
+
+        .footer-note {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #8b1538;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 11px;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .doctor-info {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px;
+            color: #666;
+            text-align: center;
+        }
+
+        /* Color variations */
+        .color-blue .cert-title,
+        .color-blue .medical-symbol,
+        .color-blue .section-header,
+        .color-blue .footer-note {
+            background: #1565c0;
+            color: white;
+        }
+
+        .color-blue .cert-header {
+            border-bottom-color: #1565c0;
+        }
+
+        .color-green .cert-title,
+        .color-green .medical-symbol,
+        .color-green .section-header,
+        .color-green .footer-note {
+            background: #2e7d32;
+            color: white;
+        }
+
+        .color-green .cert-header {
+            border-bottom-color: #2e7d32;
+        }
+
+        .color-purple .cert-title,
+        .color-purple .medical-symbol,
+        .color-purple .section-header,
+        .color-purple .footer-note {
+            background: #6a1b9a;
+            color: white;
+        }
+
+        .color-purple .cert-header {
+            border-bottom-color: #6a1b9a;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .preview-section {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="template-selector">
+            <h2>Choose Certificate Template</h2>
+            <div class="template-buttons">
+                <button class="template-btn active" data-template="1">Template 1<br>Classic Red</button>
+                <button class="template-btn" data-template="2">Template 2<br>Professional Blue</button>
+                <button class="template-btn" data-template="3">Template 3<br>Medical Green</button>
+                <button class="template-btn" data-template="4">Template 4<br>Elegant Purple</button>
+                <button class="template-btn" data-template="5">Template 5<br>Modern Orange</button>
+                <button class="template-btn" data-template="6">Template 6<br>Fresh Teal</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="form-section">
+                <h2>Enter Details</h2>
+                
+                <div class="form-group">
+                    <label>Date:</label>
+                    <input type="date" id="dateInput">
+                </div>
+
+                <div class="form-group">
+                    <label>Name:</label>
+                    <input type="text" id="nameInput" placeholder="Fedes Estimating">
+                </div>
+
+                <div class="form-group">
+                    <label>Age:</label>
+                    <input type="number" id="ageInput" placeholder="33">
+                </div>
+
+                <div class="form-group">
+                    <label>Gender:</label>
+                    <input type="text" id="genderInput" placeholder="M">
+                </div>
+
+                <div class="form-group">
+                    <label>Prescription 1 (optional):</label>
+                    <input type="text" id="prescription1Input" placeholder="FES">
+                </div>
+
+                <div class="form-group">
+                    <label>Prescription 2 (optional):</label>
+                    <input type="text" id="prescription2Input" placeholder="343">
+                </div>
+
+                <div class="form-group">
+                    <label>Days:</label>
+                    <input type="number" id="daysInput" placeholder="3">
+                </div>
+
+                <div class="form-group">
+                    <label>Select a Handwritten Text Color:</label>
+                    <div class="color-options">
+                        <div class="color-option">
+                            <input type="radio" name="textColor" id="colorLightBlue" value="lightblue">
+                            <label for="colorLightBlue">Light Blue</label>
+                        </div>
+                        <div class="color-option">
+                            <input type="radio" name="textColor" id="colorBallPen" value="ballpen" checked>
+                            <label for="colorBallPen">Light Ball Pen</label>
+                        </div>
+                        <div class="color-option">
+                            <input type="radio" name="textColor" id="colorBallPenBlue" value="ballpenblue">
+                            <label for="colorBallPenBlue">Ball Pen Blue</label>
+                        </div>
+                        <div class="color-option">
+                            <input type="radio" name="textColor" id="colorGelPenBlue" value="gelpenblue">
+                            <label for="colorGelPenBlue">Gel Pen Blue</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Select Certificate: Default / Lowercase</label>
+                    <div class="case-options">
+                        <div class="case-option">
+                            <input type="radio" name="caseType" id="caseDefault" value="default" checked>
+                            <label for="caseDefault">Default</label>
+                        </div>
+                        <div class="case-option">
+                            <input type="radio" name="caseType" id="caseLowercase" value="lowercase">
+                            <label for="caseLowercase">Lowercase All Letters</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="agreeCheckbox">
+                    <label for="agreeCheckbox">I agree to the Terms and Conditions.</label>
+                </div>
+
+                <button class="download-btn" id="downloadBtn" disabled>DOWNLOAD</button>
+            </div>
+
+            <div class="preview-section">
+                <h3>Medical Certificate Preview</h3>
+                <div class="certificate" id="certificate">
+                    <div class="cert-header">
+                        <div class="medical-symbol">☤</div>
+                        <div class="cert-title">+ पांडेय होम्यो दवाखाना +</div>
+                    </div>
+
+                    <div class="left-section">
+                        <div class="section-header">हमारी विशेषता</div>
+                        <div class="section-content">
+                            <ul>
+                                <li>न्यूरोलाजी शाखा</li>
+                                <li>त्वचा, बालों का</li>
+                                <li>प्राची विभाग(सफेद)</li>
+                                <li>अनेमिक रक्त की))</li>
+                                <li>पुष्टिलैंड</li>
+                                <li>पेट के रोग)</li>
+                                <li>गठिया</li>
+                                <li>एंजाइना</li>
+                            </ul>
+                        </div>
+
+                        <div class="section-header" style="margin-top: 15px;">प्रमुख तत्व</div>
+                        <div class="section-content">
+                            <ul>
+                                <li>पीलि नली(पौरूषप्रभाव</li>
+                                <li>गुर्दे, पथरी</li>
+                            </ul>
+                        </div>
+
+                        <div class="section-header" style="margin-top: 15px;">हर तरहे के रेक्टेलिये</div>
+                        <div class="section-content">
+                            <ul>
+                                <li>चिकन पॉक्स(तीरन</li>
+                                <li>नेटरिया</li>
+                                <li>ज्यीणिच्छासिस</li>
+                                <li>ख्यूमैटाइड्रम</li>
+                                <li>फाल्यूइटाई विशेषपर)</li>
+                            </ul>
+                        </div>
+
+                        <div class="section-header" style="margin-top: 15px;">मर्यादित ज़ी रीओनियां</div>
+                        <div class="section-content">
+                            <ul>
+                                <li>गतिया, थायरीइड</li>
+                                <li>विशैलाचार</li>
+                                <li>किण्डमैरीकल्युइयार</li>
+                                <li>स्वम्बू संदिरीएन्ही</li>
+                                <li>विवरकीरणा</li>
+                            </ul>
+                        </div>
+
+                        <div class="section-header" style="margin-top: 15px;">जीवनों के रोगों का</div>
+                        <div class="section-content">
+                            <ul>
+                                <li>गर्ने टेहमीज</li>
+                                <li>पुरुषीजेंण्डर(लेखखोंशीम</li>
+                                <li>सफूगी से(पुरुष/स्त्री</li>
+                                <li>अविशिष्मिता</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="right-section">
+                        <div class="form-field">
+                            <span class="field-label">डॉ ए</span>
+                            <span class="field-value" id="certDate">8/07/25</span>
+                        </div>
+
+                        <div class="form-field">
+                            <span class="field-value" id="certName" style="min-width: 200px;">Fedes Estimating</span>
+                        </div>
+
+                        <div class="form-field">
+                            <span class="field-label">उ य</span>
+                            <span class="field-value" id="certAge">33</span>
+                        </div>
+
+                        <div class="form-field">
+                            <span class="field-label">लिङ्ग</span>
+                            <span class="field-value" id="certGender">M</span>
+                        </div>
+
+                        <div class="prescription-area" id="prescriptionArea">
+                            <div id="prescription1">FES</div>
+                            <div id="prescription2">343</div>
+                            <div style="margin-top: 30px;">Treatment Prescribed</div>
+                            <div>Oral Medication Solution</div>
+                            <div style="margin-top: 20px;">Advice: Rest for <span id="certDays">3</span> days</div>
+                        </div>
+                    </div>
+
+                    <div class="footer-note">
+                        परिलेमे :- इलाज के 15 दिन इस रिपोर्ट को यहाँ लान कर जूरी दवाई लेना है।
+                    </div>
+
+                    <div class="doctor-info">
+                        Contact: +91-XXXXXXXXXX | Dr. Pandey | Address
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const dateInput = document.getElementById('dateInput');
+        const nameInput = document.getElementById('nameInput');
+        const ageInput = document.getElementById('ageInput');
+        const genderInput = document.getElementById('genderInput');
+        const prescription1Input = document.getElementById('prescription1Input');
+        const prescription2Input = document.getElementById('prescription2Input');
+        const daysInput = document.getElementById('daysInput');
+        const agreeCheckbox = document.getElementById('agreeCheckbox');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        const certName = document.getElementById('certName');
+        const certAge = document.getElementById('certAge');
+        const certGender = document.getElementById('certGender');
+        const certDate = document.getElementById('certDate');
+        const certDays = document.getElementById('certDays');
+        const prescription1 = document.getElementById('prescription1');
+        const prescription2 = document.getElementById('prescription2');
+        const prescriptionArea = document.getElementById('prescriptionArea');
+
+        const certificate = document.getElementById('certificate');
+        const templateButtons = document.querySelectorAll('.template-btn');
+        const textColorInputs = document.querySelectorAll('input[name="textColor"]');
+        const caseTypeInputs = document.querySelectorAll('input[name="caseType"]');
+
+        const templates = {
+            1: { name: 'Classic Red', color: '#8b1538' },
+            2: { name: 'Professional Blue', color: '#1565c0' },
+            3: { name: 'Medical Green', color: '#2e7d32' },
+            4: { name: 'Elegant Purple', color: '#6a1b9a' },
+            5: { name: 'Modern Orange', color: '#e65100' },
+            6: { name: 'Fresh Teal', color: '#00695c' }
+        };
+
+        const colorMap = {
+            'lightblue': '#4a90e2',
+            'ballpen': '#1e3a8a',
+            'ballpenblue': '#1e40af',
+            'gelpenblue': '#2563eb'
+        };
+
+        let currentTemplate = 1;
+        let currentTextColor = '#1e3a8a';
+        let currentCase = 'default';
+
+        // Set default date to today
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.value = today;
+        certDate.textContent = formatDate(today);
+
+        // Template switching
+        templateButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentTemplate = btn.dataset.template;
+                
+                templateButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                applyTemplate();
+            });
+        });
+
+        function applyTemplate() {
+            const color = templates[currentTemplate].color;
+            
+            document.querySelectorAll('.cert-title, .medical-symbol').forEach(el => {
+                el.style.color = color;
+            });
+            
+            document.querySelectorAll('.section-header, .footer-note').forEach(el => {
+                el.style.backgroundColor = color;
+            });
+            
+            document.querySelector('.cert-header').style.borderBottomColor = color;
+            
+            document.querySelectorAll('.section-content li:before').forEach(el => {
+                el.style.color = color;
+            });
+        }
+
+        // Text color change
+        textColorInputs.forEach(input => {
+            input.addEventListener('change', (e) => {
+                currentTextColor = colorMap[e.target.value];
+                applyTextColor();
+            });
+        });
+
+        function applyTextColor() {
+            prescriptionArea.style.color = currentTextColor;
+            document.querySelectorAll('.form-field').forEach(el => {
+                el.style.color = currentTextColor;
+            });
+        }
+
+        // Case type change
+        caseTypeInputs.forEach(input => {
+            input.addEventListener('change', (e) => {
+                currentCase = e.target.value;
+                updateAllFields();
+            });
+        });
+
+        function transformText(text) {
+            if (!text) return text;
+            return currentCase === 'lowercase' ? text.toLowerCase() : text;
+        }
+
+        // Real-time updates
+        dateInput.addEventListener('input', (e) => {
+            certDate.textContent = formatDate(e.target.value) || '8/07/25';
+        });
+
+        nameInput.addEventListener('input', (e) => {
+            certName.textContent = transformText(e.target.value) || 'Fedes Estimating';
+        });
+
+        ageInput.addEventListener('input', (e) => {
+            certAge.textContent = e.target.value || '33';
+        });
+
+        genderInput.addEventListener('input', (e) => {
+            certGender.textContent = transformText(e.target.value) || 'M';
+        });
+
+        prescription1Input.addEventListener('input', (e) => {
+            prescription1.textContent = transformText(e.target.value) || 'FES';
+        });
+
+        prescription2Input.addEventListener('input', (e) => {
+            prescription2.textContent = transformText(e.target.value) || '343';
+        });
+
+        daysInput.addEventListener('input', (e) => {
+            certDays.textContent = e.target.value || '3';
+        });
+
+        function updateAllFields() {
+            certName.textContent = transformText(nameInput.value) || 'Fedes Estimating';
+            certGender.textContent = transformText(genderInput.value) || 'M';
+            prescription1.textContent = transformText(prescription1Input.value) || 'FES';
+            prescription2.textContent = transformText(prescription2Input.value) || '343';
+        }
+
+        agreeCheckbox.addEventListener('change', (e) => {
+            downloadBtn.disabled = !e.target.checked;
+        });
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            const day = date.getDate();
+            const month = date.getMonth() + 1;
+            const year = date.getFullYear() % 100;
+            return `${day}/${month}/${year}`;
+        }
+
+        downloadBtn.addEventListener('click', async () => {
+            downloadBtn.textContent = 'Generating...';
+            downloadBtn.disabled = true;
+
+            try {
+                const canvas = await html2canvas(certificate, {
+                    scale: 2,
+                    backgroundColor: '#f5f3e8',
+                    logging: false,
+                    useCORS: true
+                });
+
+                const link = document.createElement('a');
+                link.download = `medical_certificate_template${currentTemplate}_${nameInput.value || 'patient'}_${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+
+                downloadBtn.textContent = 'DOWNLOAD';
+                downloadBtn.disabled = !agreeCheckbox.checked;
+            } catch (error) {
+                alert('Error generating certificate. Please try again.');
+                downloadBtn.textContent = 'DOWNLOAD';
+                downloadBtn.disabled = !agreeCheckbox.checked;
+            }
+        });
+
+        // Initialize
+        applyTemplate();
+        applyTextColor();
+    </script>
+</body>
+</html>
