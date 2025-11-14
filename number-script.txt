@@ -1,0 +1,916 @@
+<?php
+
+ob_start();
+
+include('common/config.php');
+
+session_start();
+
+// if (isset($_SESSION["emp_email"])) {
+
+//     header('location:dashboard.php');
+
+//     exit();
+
+// }
+
+
+
+// error_reporting(0);
+
+
+
+// if (isset($_POST['login'])) {
+
+//     $adminuser = $_POST['email'];
+
+//     $password = $_POST['password'];
+
+//     $keep_signed_in = isset($_POST['remember']); // Check if "Remember me" is checked
+
+
+
+//     // Prepare the query to retrieve user data based on email
+
+//     $query = "SELECT * FROM employees WHERE emp_email = ?";
+
+//     $stmt = $con->prepare($query);
+
+//     $stmt->bind_param("s", $adminuser);
+
+//     $stmt->execute();
+
+//     $result = $stmt->get_result();
+
+
+
+//     if ($result->num_rows > 0) {
+
+//         $row = $result->fetch_assoc();
+
+//         // Verify the provided password against the hashed password stored in the database
+
+//         if (password_verify($password, $row['emp_password'])) {
+
+//             $_SESSION["emp_id"] = $row['emp_id'];
+
+//             $_SESSION["emp_name"] = $row['emp_name'];
+
+//             $_SESSION["emp_email"] = $row['emp_email'];
+
+//             $_SESSION["emp_role"] = $row['emp_role'];
+
+
+
+//             // Set a cookie for keeping the user signed in
+
+//             if ($keep_signed_in) {
+
+//                 $cookie_name = "user_login";
+
+//                 $cookie_value = base64_encode(json_encode([
+
+//                     'user_id' => $row['user_id'],
+
+//                     'user_email' => $row['user_email']
+
+//                 ]));
+
+//                 // Set cookie to expire in 30 days, make it secure, and HttpOnly
+
+//                 setcookie($cookie_name, $cookie_value, time() + (86400 * 30), "/", "", true, true);
+
+//             } else {
+
+//                 // Clear the cookie if "Remember me" is not checked
+
+//                 if (isset($_COOKIE['user_login'])) {
+
+//                     setcookie('user_login', '', time() - 3600, "/");
+
+//                 }
+
+//             }
+
+
+
+//             // Trigger the success popup
+
+//             $success = true;
+
+//         } else {
+
+//             // Trigger the error popup
+
+//             $error = true;
+
+//         }
+
+//     } else {
+
+//         $error = true; // User not found
+
+//     }
+
+
+
+//     $stmt->close();
+
+// }
+
+?>
+
+
+
+
+
+<?php
+
+// include('common/config.php');
+
+
+// if (isset($_GET['user-id'])) {
+// echo"<pre>";
+// print_r($_SESSION); 
+// print_r($_GET);
+// echo"</pre>"; 
+// exit();
+// }
+// ager user attandence id set ho to dashboard par redirect na ho.
+if (isset($_SESSION["emp_email"]) && !isset($_GET['user-id'])) {
+
+//   echo"<pre>";
+// print_r($_SESSION); 
+// print_r($_GET);
+// echo"</pre>"; exit();
+
+    header('location:dashboard.php');
+
+    exit();
+
+}
+
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+
+// error_reporting(0);
+// ini_set('display_errors', 0);
+
+
+
+
+// Check if the "Remember Me" cookie is set
+
+// echo '<pre>';
+// print_r ($_COOKIE);
+// print_r ($_GET);
+// echo '</pre>';
+
+if (isset($_COOKIE['user_login'])) {
+
+    $cookie_data = json_decode(base64_decode($_COOKIE['user_login']), true);
+
+    if (!empty($cookie_data)) {
+
+        $query = "SELECT * FROM employees WHERE emp_email = ?";
+
+        $stmt = $con->prepare($query);
+
+        $stmt->bind_param("s", $cookie_data['user_email']);
+
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+
+
+
+        if ($result->num_rows > 0) {
+
+            $row = $result->fetch_assoc();
+
+            $_SESSION["emp_id"] = $row['emp_id'];
+
+            $_SESSION["emp_name"] = $row['emp_name'];
+
+            $_SESSION["emp_email"] = $row['emp_email'];
+
+            $_SESSION["emp_role"] = $row['emp_role'];
+
+            if(!isset($_GET['user-id'])){
+
+              header('location:dashboard.php');
+
+              exit();
+
+            }
+
+            
+            
+
+        }
+
+    }
+
+}
+
+
+
+if (isset($_POST['login'])) {
+
+    $adminuser = $_POST['email'];
+
+    $password = $_POST['password'];
+
+    $keep_signed_in = isset($_POST['remember']); // Check if "Remember me" is checked
+
+
+
+    // Prepare the query to retrieve user data based on email
+
+    $query = "SELECT * FROM employees WHERE emp_email = ?";
+
+    $stmt = $con->prepare($query);
+
+    $stmt->bind_param("s", $adminuser);
+
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+
+
+
+    if ($result->num_rows > 0) {
+
+        $row = $result->fetch_assoc();
+
+        // Verify the provided password against the hashed password stored in the database
+
+        if (password_verify($password, $row['emp_password'])) {
+
+            $_SESSION["emp_id"] = $row['emp_id'];
+
+            $_SESSION["emp_name"] = $row['emp_name'];
+
+            $_SESSION["emp_email"] = $row['emp_email'];
+
+            $_SESSION["emp_role"] = $row['emp_role'];
+
+            $_SESSION["emp_code"] = $row['emp_code'];
+
+
+
+            $emp_id = $_SESSION["emp_id"];
+
+            $emp_name = $_SESSION["emp_name"];
+
+            // Save activity for leave submission
+
+            $activity_type = "Login Activity";
+
+            // $activity_description = "Leave request submitted by $emp_name. Type: $leave_type, Start Date: $start_date, End Date: $end_date, Reason: $leave_reason.";
+
+            $activity_description = "$emp_name Login To Portal.";
+
+            $activity_status = "info"; // Example status, adjust as needed
+
+
+
+            $activity_sql = "INSERT INTO recent_activities (emp_id, emp_name, activity_type, activity_description, activity_status) VALUES (?, ?, ?, ?, ?)";
+
+            $stmt_activity = $con->prepare($activity_sql);
+
+
+
+            if ($stmt_activity) {
+
+                $stmt_activity->bind_param("issss", $emp_id, $emp_name, $activity_type, $activity_description, $activity_status);
+
+                $stmt_activity->execute();
+
+                $stmt_activity->close();
+
+                header('location:dashboard.php');
+
+                exit();
+
+            } else {
+
+                // Handle potential errors
+
+                echo "Error preparing the statement: " . $con->error;
+
+            }
+
+
+
+
+
+
+
+            // Set a cookie for keeping the user signed in
+
+            if ($keep_signed_in) {
+
+                $cookie_name = "user_login";
+
+                $cookie_value = base64_encode(json_encode([
+
+                    'user_id' => $row['emp_id'],
+
+                    'user_email' => $row['emp_email']
+
+                ]));
+
+                // Set cookie to expire in 30 days, make it secure, and HttpOnly
+
+                setcookie($cookie_name, $cookie_value, time() + (86400 * 30), "/", "", true, true);
+
+            } else {
+
+                // Clear the cookie if "Remember me" is not checked
+
+                if (isset($_COOKIE['user_login'])) {
+
+                    setcookie('user_login', '', time() - 3600, "/");
+
+                }
+
+            }
+
+
+
+            // Trigger the success popup
+
+            $success = true;
+
+        } else {
+
+            // Trigger the error popup
+
+            $error = true;
+
+        }
+
+    } else {
+
+        $error = true; // User not found
+
+    }
+
+
+
+    $stmt->close();
+
+}
+
+?>
+
+
+
+
+
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+
+
+<head>
+
+  <meta charset="utf-8">
+
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>EHM HRM Login Page</title>
+
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+
+  <link href="assets/css/style.css" rel="stylesheet">
+
+  <link href="assets/css/popup_style.css" rel="stylesheet">
+
+
+
+
+
+</head>
+
+
+
+<body>
+
+
+
+  <main>
+
+    <div class="container">
+
+      <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
+
+        <div class="container">
+
+          <div class="row justify-content-center">
+
+            <div class="col-lg-5 col-md-6 d-flex flex-column align-items-center justify-content-center">
+
+              <div class="d-flex justify-content-center py-4">
+
+                <a href="https://hrm.ehmitservices.com/" class="logo d-flex align-items-center w-auto">
+
+                  <img src="assets/img/logo.png" alt="">
+
+                  <span class="d-none d-lg-block">EHM IT Services</span>
+
+                </a>
+
+              </div><!-- End Logo -->
+
+              <div class="card mb-3 attandence-container"> 
+
+              <?php 
+              // Attendance Check-in & Check-out logic
+              if (isset($_POST['attendence'])){
+                // On each page, save current URL
+                // session_start();
+                $_SESSION['last_url'] = $_SERVER['REQUEST_URI'];
+                
+                // echo '<pre>';
+                // print_r ($_POST);
+                // echo '</pre>';
+                // exit();
+                $emp_id = $_POST['emp_id'];
+                $attendence = $_POST['attendence']; // check_in or check_out
+                // $time_now = date("H:i:s");
+                // $date_today = date("Y-m-d");
+
+                $us_time = new DateTime("now", new DateTimeZone("America/New_York"));
+
+                $us_date_today = $us_time->format("Y-m-d");
+                $us_time_now = $us_time->format("h:i:s A");
+                // echo $us_time_now;
+
+                // Check if it's a check-in
+                if ($attendence === 'check_in') {
+                    // Prevent duplicate check-in
+                    $stmt = $con->prepare("SELECT attendance_id FROM employee_attendance WHERE emp_id = ? AND attendance_date = ?");
+                    $stmt->bind_param("is", $emp_id, $us_date_today);
+                    $stmt->execute();
+                    $stmt->store_result();
+
+                    if ($stmt->num_rows == 0) {
+                        // Insert check-in record
+                        $insert_stmt = $con->prepare("INSERT INTO employee_attendance (emp_id, attendance_date, check_in_time, created_at) VALUES (?, ?, ?, NOW())");
+                        $insert_stmt->bind_param("iss", $emp_id, $us_date_today, $us_time_now);
+                        $insert_stmt->execute();
+                        echo "<p class='invalid-user-alert'><a href='?undo_attendance=1&user-id={$_POST['emp_code']}&attendence-id={$emp_id}' onclick=\'return confirm('Are you sure you want to undo today\\'s attendance?')\' >Undo Check in</a></p>";
+                        echo "<p class='user-alert'>Check-in marked successfully.</p>";
+                    } else {
+                        echo "<p class='user-alert'>You have already checked in today.</p>";
+                    }
+
+                    $stmt->close();
+                }
+
+                // Check-out logic
+                elseif ($attendence === 'check_out') {
+                  // print_r ($emp_id);
+                  //   // echo '</pre>';
+                  //   exit();
+                    // Find the last check-in without check-out
+                    $check_stmt = $con->prepare("SELECT attendance_id FROM employee_attendance WHERE emp_id = ? AND check_out_time IS NULL ORDER BY attendance_id DESC LIMIT 1");
+                    $check_stmt->bind_param("i", $emp_id);
+                    $check_stmt->execute();
+                    $result = $check_stmt->get_result();
+
+                    if ($result->num_rows > 0) {
+                        $row = $result->fetch_assoc();
+                        $check_id = $row['attendance_id'];
+
+                        // Update with check-out time
+                        $update_stmt = $con->prepare("UPDATE employee_attendance SET check_out_time = ?, updated_at = NOW() WHERE attendance_id = ?");
+                        $update_stmt->bind_param("si", $us_time_now, $check_id);
+                        $update_stmt->execute();
+                        echo "<p class='invalid-user-alert'><a href='?undo_attendance=1&user-id={$_POST['emp_code']}&attendence-id={$emp_id}' onclick=\'return confirm('Are you sure you want to undo today\\'s attendance?')\' >Undo Check out</a></p>";
+                        echo "<p class='user-alert'>Check-out marked successfully.</p>";
+                        $update_stmt->close();
+                    } else {
+                        echo "<p class='user-alert'>Yor already checked out</p>";
+                    }
+
+                    $check_stmt->close();
+                } else {
+                    echo "<p class='user-alert'>Invalid request.</p>";
+                }
+              }
+
+
+              //Check-in & check-out Undo logic
+              if (isset($_GET['undo_attendance']) && isset($_GET['user-id'])) {
+                  $emp_id = $_GET['attendence-id'];
+
+                  $pak_time = new DateTime("now", new DateTimeZone("Asia/Karachi"));
+                  $date_today = $pak_time->format("Y-m-d");
+
+                  // First, fetch today’s attendance
+                  $select_stmt = $con->prepare("SELECT attendance_id, check_in_time, check_out_time FROM employee_attendance WHERE emp_id = ? AND attendance_date = ?");
+                  $select_stmt->bind_param("is", $emp_id, $date_today);
+                  $select_stmt->execute();
+                  $result = $select_stmt->get_result();
+
+                  if ($result->num_rows > 0) {
+                      $row = $result->fetch_assoc();
+                      $attendance_id = $row['attendance_id'];
+                      $check_in_time = $row['check_in_time'];
+                      $check_out_time = $row['check_out_time'];
+
+                      // Case 1: If both check-in and check-out exist → undo only check-out
+                      if (!empty($check_in_time) && !empty($check_out_time)) {
+                          $update_stmt = $con->prepare("UPDATE employee_attendance SET check_out_time = NULL, updated_at = NOW() WHERE attendance_id = ?");
+                          $update_stmt->bind_param("i", $attendance_id);
+                          $update_stmt->execute();
+                          echo "<p class='user-alert'>Check-out has been undone successfully.</p>";
+                          $update_stmt->close();
+                      }
+
+                      // Case 2: Only check-in exists → delete the row
+                      elseif (!empty($check_in_time) && empty($check_out_time)) {
+                          $delete_stmt = $con->prepare("DELETE FROM employee_attendance WHERE attendance_id = ?");
+                          $delete_stmt->bind_param("i", $attendance_id);
+                          $delete_stmt->execute();
+                          echo "<p class='user-alert'>Check-in has been undone successfully.</p>";
+                          $delete_stmt->close();
+                      }
+
+                      // Case 3: Unexpected state
+                      else {
+                          echo "<p class='user-alert'>No valid attendance to undo.</p>";
+                      }
+                  } else {
+                      echo "<p class='user-alert'>No attendance record found for today.</p>";
+                  }
+
+                  $select_stmt->close();
+
+                  session_start();
+                  if (isset($_SESSION['last_url'])) {
+                      header("Location: " . $_SESSION['last_url']);
+                      exit;
+                  }
+              }
+
+              
+
+              // Get user record (name, check-in time, check-out time)
+              
+
+              if (isset($_GET['user-id'])){ 
+
+                echo '<pre>';
+                // print_r($_GET);
+                
+
+                $user_id = $_GET['user-id'];
+
+                
+                $ttime = new DateTime("now", new DateTimeZone("Asia/Karachi"));
+                $usatime = new DateTime("now", new DateTimeZone("America/New_York"));
+                print_r ($ttime);
+                print_r ($usatime);
+                echo '</pre>';
+
+
+                $pak_time = new DateTime("now", new DateTimeZone("Asia/Karachi"));
+
+                $pak_date = $pak_time->format('Y-m-d');
+
+                //print_r ($pak_time);
+
+                // Prepare the statement
+                $user_query = $con->prepare("SELECT 
+                      e.emp_id,
+                      e.emp_code,
+                      e.emp_name,
+                      ea.check_in_time,
+                      ea.check_out_time
+                  FROM 
+                      employees e
+                  LEFT JOIN 
+                      employee_attendance ea 
+                      ON e.emp_id = ea.emp_id AND ea.attendance_date = ?
+                  WHERE 
+                      e.emp_code = ?"); //print_r ($user_query);
+                $user_query->bind_param("ss", $pak_date,$user_id);
+
+                // Execute the statement
+                $user_query->execute();
+
+                // Get the result
+                $aresult = $user_query->get_result();
+
+                if (!mysqli_num_rows($aresult) > 0) {
+                  echo "<p class='invalid-user-alert'>Invalid user</p>";
+                  echo "<p class='invalid-user-alert'><a href='/'>Go to login</a></p>";
+                  exit();
+                }
+                
+                $adata = $aresult->fetch_assoc();
+
+                // Print the result
+                // echo '<pre>';
+                // print_r($adata);
+
+                // echo '</pre>';
+
+                // Close the statement
+                
+
+                ?>
+
+                <div class="card-body">
+
+                  <div class="pt-4 pb-2">
+
+                    <h5 class="card-title text-center pb-0 fs-4"> Hi <?php echo  $adata['emp_name'];?> </h5>
+                    <p class="text-center small">Mark your attendence</p>
+
+                    <form class="row g-3 needs-validation" action="" method="POST" novalidate>
+
+                      <input type="hidden" name="csrf_token" value="<?= bin2hex(random_bytes(32)) ?>">
+
+                      <input type="hidden" name="emp_id" value="<?php echo $adata['emp_id']; ?>">
+
+                      <input type="hidden" name="emp_code" value="<?php echo $user_id; ?>">
+
+                      <div class="col-12 attandence-inputs">
+                        <div class="custom-control custom-radio">
+                            <input type="radio" id="customRadio1" name="attendence" class="custom-control-input" value="check_in" required <?php echo ($adata['check_in_time'] == NULL) ? '' : 'checked'; ?>>
+                            <label class="custom-control-label" for="customRadio1"><h5>Check In</h5></label>
+                            <p><?php echo $adata['check_in_time'];?></p>
+                        </div>
+                        <div class="custom-control custom-radio">
+                            <input type="radio" id="customRadio2" name="attendence" class="custom-control-input" value="check_out" <?php echo ($adata['check_out_time'] == NULL) ? '' : 'checked'; ?>>
+                            <label class="custom-control-label" for="customRadio2"><h5>Check Out</h5></label>
+                            <p><?php echo $adata['check_out_time'];?></p>
+                        </div>
+                      </div>
+
+                      <div class="col-12 pt-3">
+
+                        <button type="submit" name="attendence-btn" class="btn btn-block btn-primary" style="width: 100%;">Submit</button>
+
+                      </div>
+
+                    </form>
+
+                  </div>
+
+                </div>
+
+              <?php } else { ?>
+
+                <div class="card-body">
+
+                  <div class="pt-4 pb-2">
+
+                    <h5 class="card-title text-center pb-0 fs-4">Login to Your Account</h5>
+
+                    <p class="text-center small">Enter your email & password to login</p>
+
+                  </div>
+
+
+
+                  <form class="row g-3 needs-validation" action="" method="POST" novalidate>
+
+                    <input type="hidden" name="csrf_token" value="<?= bin2hex(random_bytes(32)) ?>">
+
+
+
+                    <div class="col-12">
+
+                      <label for="yourEmail" class="form-label">Email</label>
+
+                      <div class="input-group has-validation">
+
+                        <span class="input-group-text" id="inputGroupPrepend">@</span>
+
+                        <input type="email" name="email" class="form-control" id="yourEmail" required>
+
+                        <div class="invalid-feedback">Please enter your email.</div>
+
+                      </div>
+
+                    </div>
+
+
+
+                    <div class="col-12">
+
+                      <label for="yourPassword" class="form-label">Password</label>
+
+                      <div class="input-group">
+
+                        <input type="password" name="password" class="form-control" id="yourPassword" required>
+
+                        <span class="input-group-text" onclick="togglePasswordVisibility()">
+
+                          <i class="bi bi-eye" id="eye-icon"></i>
+
+                        </span>
+
+                        <div class="invalid-feedback">Please enter your password!</div>
+
+                      </div>
+
+                    </div>
+
+
+
+                    <div class="col-12 pt-3">
+
+                      <button type="submit" name="login" class="btn btn-block btn-primary" style="width: 100%;">Log In</button>
+
+                    </div>                    
+
+                    <div class="my-2 d-flex justify-content-between align-items-center">
+
+                      <div class="form-check">
+
+                        <input class="form-check-input" type="checkbox" name="remember" value="true" id="rememberMe">
+
+                        <label class="form-check-label" for="rememberMe">Remember me</label>
+
+                      </div>
+
+                      <a href="forgot_password.php" class="auth-link text-black">Forgot password?</a>
+
+                    </div>
+
+                  </form>
+
+                </div>
+
+              <?php } 
+              
+              //$user_query->close();
+              
+              ?>
+
+              </div>
+
+              <div class="credits">
+
+                Designed by <a href="https://ehmitservices.com/">EHM IT Services</a>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+
+
+  <!-- Success Popup -->
+
+  <?php if (isset($success) && $success): ?>
+
+  <div class="popup popup--icon -success js_success-popup popup--visible">
+
+    <div class="popup__background"></div>
+
+    <div class="popup__content">
+
+      <h3 class="popup__content__title">Success</h3>
+
+      <p>Login Successfully</p>
+
+      <p><?php echo "<script>setTimeout(function() {location.href = 'dashboard.php';}, 1500);</script>"; ?></p>
+
+    </div>
+
+  </div>
+
+  <?php endif; ?>
+
+
+
+  <!-- Error Popup -->
+
+  <?php if (isset($error) && $error): ?>
+
+  <div class="popup popup--icon -error js_error-popup popup--visible">
+
+    <div class="popup__background"></div>
+
+    <div class="popup__content">
+
+      <h3 class="popup__content__title">Error</h3>
+
+      <p>Invalid Email or Password</p>
+
+      <p><a href="index.php"><button class="button button--error" data-for="js_error-popup">Close</button></a></p>
+
+    </div>
+
+  </div>
+
+  <?php endif; ?>
+
+
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center">
+
+    <i class="bi bi-arrow-up-short"></i>
+
+  </a>
+
+
+
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <script src="assets/js/main.js"></script>
+
+
+
+  <script>
+
+    function togglePasswordVisibility() {
+
+      var passwordField = document.getElementById('yourPassword');
+
+      var eyeIcon = document.getElementById('eye-icon');
+
+      if (passwordField.type === 'password') {
+
+        passwordField.type = 'text';
+
+        eyeIcon.classList.remove('bi-eye');
+
+        eyeIcon.classList.add('bi-eye-slash');
+
+      } else {
+
+        passwordField.type = 'password';
+
+        eyeIcon.classList.remove('bi-eye-slash');
+
+        eyeIcon.classList.add('bi-eye');
+
+      }
+
+    }
+
+
+
+    (() => {
+
+      'use strict'
+
+
+
+      const forms = document.querySelectorAll('.needs-validation')
+
+
+
+      Array.prototype.slice.call(forms).forEach((form) => {
+
+        form.addEventListener('submit', (event) => {
+
+          if (!form.checkValidity()) {
+
+            event.preventDefault()
+
+            event.stopPropagation()
+
+          }
+
+
+
+          form.classList.add('was-validated')
+
+        }, false)
+
+      })
+
+    })()
+
+  </script>
+
+</body>
+
+</html>
+
