@@ -1,8 +1,3 @@
-// ============================================
-// BULLETPROOF THOUSAND SEPARATOR SOLUTION
-// Fixed for consistency and dynamic elements
-// ============================================
-
 (function() {
     'use strict';
 
@@ -82,6 +77,26 @@
             let newLength = formattedValue.length;
             let diff = newLength - oldLength;
             this.setSelectionRange(cursorPos + diff, cursorPos + diff);
+        });
+
+        // Intercept value setter to auto-format calculated results
+        const originalDescriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+       Object.defineProperty(input, 'value', {
+            get: function() {
+                return originalDescriptor.get.call(this);
+            },
+            set: function(val) {
+
+                // 🛑 prevent formatting during submission cleanup
+                if (window.__NF_DISABLE === true) {
+                    originalDescriptor.set.call(this, val);
+                    return;
+                }
+
+                this._rawValue = unformatNumber(val);
+                originalDescriptor.set.call(this, formatNumber(val));
+            },
+            configurable: true
         });
 
         // Format on blur
@@ -233,84 +248,89 @@
 })();
 
 // ============================================
-// FORM SUBMISSION HANDLER
+// FORM SUBMISSION HANDLER - STRENGTHENED
 // ============================================
 
 (function() {
-    // Store original submit
+    function cleanFormValues(form) {
+        const inputs = form.querySelectorAll('input[type="text"], input[type="hidden"]');
+        const cleanedInputs = [];
+        
+        inputs.forEach(function(input) {
+            // Skip already processed hidden inputs
+            if (input.classList.contains('_temp_raw_value')) return;
+            
+            const value = input.value;
+            
+            // Check if value contains comma (formatted number)
+            if (value && value.includes(',')) {
+                const rawValue = unformatNumber(value);
+                
+                // Update the input value directly to raw number
+                input.value = rawValue;
+                
+                // Store for potential restore
+                cleanedInputs.push({
+                    input: input,
+                    originalValue: value
+                });
+            } else if (input._rawValue !== undefined) {
+                // Use stored raw value
+                input.value = input._rawValue;
+                
+                cleanedInputs.push({
+                    input: input,
+                    originalValue: value
+                });
+            }
+        });
+        
+        return cleanedInputs;
+    }
+    
+    function restoreFormValues(cleanedInputs) {
+        cleanedInputs.forEach(function(item) {
+            item.input.value = item.originalValue;
+        });
+    }
+    
+    // Handle form submit event (BEFORE submission)
+    document.addEventListener('submit', function (e) {
+        const form = e.target;
+
+        window.__NF_DISABLE = true; // turn OFF formatting
+
+        const cleanedInputs = form.querySelectorAll('input');
+
+        cleanedInputs.forEach(inp => {
+            inp.value = inp._rawValue ? inp._rawValue : unformatNumber(inp.value);
+        });
+
+        window.__NF_DISABLE = false; // re-enable formatting
+    }, true);
+
+ 
+
+    
+    // Store original submit method
     const originalSubmit = HTMLFormElement.prototype.submit;
     
-    function handleSubmit(form) {
-        const numberInputs = form.querySelectorAll('input[type="text"]');
-        const hiddenInputs = [];
-        
-        numberInputs.forEach(function(input) {
-            if (input._rawValue !== undefined || input.value.includes(',')) {
-                const rawValue = input._rawValue || NumberFormatter.unformat(input.value);
-                
-                // Create hidden input with raw value
-                const hiddenInput = document.createElement('input');
-                hiddenInput.type = 'hidden';
-                hiddenInput.name = input.name;
-                hiddenInput.value = rawValue;
-                hiddenInput.className = '_temp_raw_value';
-                
-                // Store reference
-                hiddenInputs.push({ hidden: hiddenInput, original: input });
-                
-                // Temporarily change name of formatted input
-                input.dataset.originalName = input.name;
-                input.name = input.name + '_formatted_temp';
-                
-                // Add hidden input
-                form.appendChild(hiddenInput);
-            }
-        });
-        
-        return hiddenInputs;
-    }
-    
-    function cleanupSubmit(hiddenInputs) {
-        hiddenInputs.forEach(function(item) {
-            // Restore original name
-            if (item.original.dataset.originalName) {
-                item.original.name = item.original.dataset.originalName;
-                delete item.original.dataset.originalName;
-            }
-            
-            // Remove hidden input
-            if (item.hidden.parentNode) {
-                item.hidden.parentNode.removeChild(item.hidden);
-            }
-        });
-    }
-    
-    // Override form.submit()
+    // Override form.submit() for programmatic submissions
     HTMLFormElement.prototype.submit = function() {
-        const hiddenInputs = handleSubmit(this);
+        const cleanedInputs = cleanFormValues(this);
+        
+        // Call original submit
         originalSubmit.call(this);
+        
+        // Restore after submission
         setTimeout(function() {
-            cleanupSubmit(hiddenInputs);
-        }, 100);
+            restoreFormValues(cleanedInputs);
+        }, 500);
     };
     
-    // Handle form submit event
-    document.addEventListener('submit', function(e) {
-        const form = e.target;
-        const hiddenInputs = handleSubmit(form);
-        
-        setTimeout(function() {
-            cleanupSubmit(hiddenInputs);
-        }, 100);
-    }, true);
+    // Helper function exposed globally
+    function unformatNumber(value) {
+        if (value === '' || value === null || value === undefined) return '';
+        return value.toString().replace(/,/g, '');
+    }
 })();
-
-
-For Extra Safety on Edit Pages:
-If you want to ensure all values are formatted immediately, add this at the bottom of your edit page:
-javascript<script>
-// Run after page fully loads
-window.addEventListener('load', function() {
-    NumberFormatter.refresh();
-});
-</script>
